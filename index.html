@@ -41,16 +41,58 @@
             flex: 3;
             min-width: 140px;
         }
-        .name {
-            font-weight: bold;
-            font-size: 18px;
-            color: #222;
+        
+        @media (min-width: 768px) {
+            .title-row {
+                display: flex;
+                align-items: baseline;
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+            .type-badge {
+                display: inline-block;
+                background: #e0e0e0;
+                padding: 2px 10px;
+                border-radius: 20px;
+                font-size: 12px;
+                font-weight: 500;
+                color: #555;
+            }
+            .name {
+                font-weight: bold;
+                font-size: 18px;
+                color: #222;
+            }
         }
+        
+        @media (max-width: 767px) {
+            .title-row {
+                display: flex;
+                flex-direction: column;
+                gap: 4px;
+            }
+            .type-badge {
+                display: inline-block;
+                background: #e0e0e0;
+                padding: 2px 10px;
+                border-radius: 20px;
+                font-size: 11px;
+                font-weight: 500;
+                color: #555;
+                align-self: flex-start;
+            }
+            .name {
+                font-weight: bold;
+                font-size: 16px;
+                color: #222;
+            }
+        }
+        
         .stock {
             font-size: 24px;
             font-weight: bold;
             color: #2c7da0;
-            margin-top: 4px;
+            margin-top: 8px;
         }
         .total {
             font-size: 12px;
@@ -95,7 +137,7 @@
             background: #e8f5e9;
             color: #2e7d32;
         }
-        .refresh-btn {
+        .refresh-btn, .history-btn {
             background: #2196f3;
             color: white;
             width: auto;
@@ -104,6 +146,10 @@
             font-size: 16px;
             border-radius: 40px;
             margin-bottom: 16px;
+            border: none;
+        }
+        .history-btn {
+            background: #6c5ce7;
         }
         .loading {
             text-align: center;
@@ -122,17 +168,73 @@
             font-size: 12px;
             color: #666;
         }
+        .last-update {
+            font-size: 11px;
+            color: #aaa;
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        .modal-content {
+            background: white;
+            margin: 20px;
+            border-radius: 20px;
+            padding: 20px;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            font-size: 20px;
+            font-weight: bold;
+        }
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            box-shadow: none;
+        }
+        .history-item {
+            border-bottom: 1px solid #eee;
+            padding: 12px 0;
+        }
+        .history-date {
+            font-size: 11px;
+            color: #888;
+        }
+        .history-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .history-sale {
+            color: #c62828;
+        }
+        .history-return {
+            color: #2e7d32;
+        }
+        
         @media (max-width: 500px) {
             button {
                 width: 56px;
                 height: 56px;
                 font-size: 24px;
-            }
-            .name {
-                font-size: 16px;
-            }
-            .stock {
-                font-size: 20px;
             }
         }
     </style>
@@ -141,37 +243,73 @@
     <h1>📦 Мерч</h1>
     <div class="sub">Продажи на маркете</div>
     
-    <button class="refresh-btn" onclick="loadData()">🔄 Обновить</button>
+    <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+        <button class="refresh-btn" onclick="loadData(true)">🔄 Обновить</button>
+        <button class="history-btn" onclick="showHistory()">📜 История</button>
+    </div>
     
     <div id="cards-container">
         <div class="loading">Загрузка...</div>
     </div>
+    <div class="last-update" id="update-time"></div>
     <div class="footer">
-        −1 при продаже | +1 при возврате | Данные синхронизируются
+        −1 продажа | +1 возврат | Данные общие для всех
+    </div>
+
+    <!-- Модальное окно для истории -->
+    <div id="historyModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span>📜 История продаж</span>
+                <button class="close-btn" onclick="closeHistory()">×</button>
+            </div>
+            <div id="history-list">
+                <div class="loading">Загрузка истории...</div>
+            </div>
+        </div>
     </div>
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbyI4-3-tHMsE0txfUUcD4gb7kgVAvYi7N3mkbuBLsx1C3Kp2math2dCw-p-Oh6-WEU/exec";
         
         let cardsData = [];
+        let isLoading = false;
 
-        async function loadData() {
-            const container = document.getElementById('cards-container');
-            container.innerHTML = '<div class="loading">Загрузка...</div>';
+        function showUpdateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('update-time').innerText = `Последнее обновление: ${timeStr}`;
+        }
+
+        async function loadData(showLoading = true) {
+            if (isLoading) return;
+            
+            isLoading = true;
+            if (showLoading) {
+                const container = document.getElementById('cards-container');
+                container.innerHTML = '<div class="loading">Загрузка...</div>';
+            }
             
             try {
-                const response = await fetch(API_URL + "?action=get");
+                const response = await fetch(API_URL + "?action=get&t=" + Date.now());
                 const data = await response.json();
                 
                 if (data && data.length > 0) {
                     cardsData = data;
                     renderCards();
-                } else {
+                    showUpdateTime();
+                } else if (showLoading) {
+                    const container = document.getElementById('cards-container');
                     container.innerHTML = '<div class="loading">Нет данных. Проверьте таблицу и лист "Мерч".</div>';
                 }
             } catch (error) {
                 console.error(error);
-                container.innerHTML = '<div class="loading">Ошибка загрузки. Проверьте интернет и ссылку.</div>';
+                if (showLoading) {
+                    const container = document.getElementById('cards-container');
+                    container.innerHTML = '<div class="loading">Ошибка загрузки. Проверьте интернет и ссылку.</div>';
+                }
+            } finally {
+                isLoading = false;
             }
         }
 
@@ -182,13 +320,27 @@
             cardsData.forEach((card, index) => {
                 const sold = card.total - card.stock;
                 const revenue = sold * card.price;
+                const hasType = card.type && card.type.trim() !== "";
+                
+                // Формируем HTML в зависимости от наличия типа
+                let titleHtml = '';
+                if (hasType) {
+                    titleHtml = `
+                        <div class="title-row">
+                            <span class="type-badge">${escapeHtml(card.type)}</span>
+                            <span class="name">${escapeHtml(card.name)}</span>
+                        </div>
+                    `;
+                } else {
+                    titleHtml = `<div class="name">${escapeHtml(card.name)}</div>`;
+                }
                 
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'card';
                 
                 cardDiv.innerHTML = `
                     <div class="info">
-                        <div class="name">${escapeHtml(card.name)}</div>
+                        ${titleHtml}
                         <div class="stock">Остаток: ${card.stock} шт</div>
                         <div class="total">Всего: ${card.total} шт</div>
                         ${card.price ? `<div class="price">💰 ${card.price} ₽</div>` : ''}
@@ -226,22 +378,61 @@
                 return;
             }
             
-            // Оптимистичное обновление
             card.stock = newStock;
             renderCards();
             
             try {
-                const response = await fetch(`${API_URL}?action=update&row=${index}&delta=${delta}`);
+                const response = await fetch(`${API_URL}?action=update&row=${index}&delta=${delta}&t=${Date.now()}`);
                 const result = await response.json();
                 if (!result.success) {
-                    await loadData();
+                    await loadData(true);
                     alert("Ошибка: " + (result.error || "неизвестная"));
                 }
             } catch (error) {
                 console.error(error);
-                await loadData();
+                await loadData(true);
                 alert("Ошибка соединения");
             }
+        }
+
+        async function showHistory() {
+            const modal = document.getElementById('historyModal');
+            const historyList = document.getElementById('history-list');
+            modal.style.display = 'block';
+            historyList.innerHTML = '<div class="loading">Загрузка...</div>';
+            
+            try {
+                const response = await fetch(API_URL + "?action=getHistory&t=" + Date.now());
+                const history = await response.json();
+                
+                if (history && history.length > 0) {
+                    historyList.innerHTML = '';
+                    history.forEach(item => {
+                        const date = new Date(item.date);
+                        const dateStr = date.toLocaleString('ru-RU');
+                        const actionClass = item.action === 'Продажа' ? 'history-sale' : 'history-return';
+                        const actionSymbol = item.action === 'Продажа' ? '−' : '+';
+                        
+                        const div = document.createElement('div');
+                        div.className = 'history-item';
+                        div.innerHTML = `
+                            <div class="history-date">${dateStr}</div>
+                            <div class="history-name">${escapeHtml(item.name)}</div>
+                            <div class="${actionClass}">${item.action} ${actionSymbol}1 → остаток: ${item.newStock} шт</div>
+                        `;
+                        historyList.appendChild(div);
+                    });
+                } else {
+                    historyList.innerHTML = '<div class="loading">История пуста</div>';
+                }
+            } catch (error) {
+                console.error(error);
+                historyList.innerHTML = '<div class="loading">Ошибка загрузки истории</div>';
+            }
+        }
+        
+        function closeHistory() {
+            document.getElementById('historyModal').style.display = 'none';
         }
 
         function escapeHtml(str) {
@@ -254,8 +445,14 @@
             });
         }
 
-        loadData();
-        setInterval(loadData, 60000);
+        window.onclick = function(event) {
+            const modal = document.getElementById('historyModal');
+            if (event.target === modal) {
+                closeHistory();
+            }
+        }
+
+        loadData(true);
     </script>
 </body>
 </html>
