@@ -256,7 +256,6 @@
         −1 продажа | +1 возврат | Данные общие для всех
     </div>
 
-    <!-- Модальное окно для истории -->
     <div id="historyModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -278,7 +277,8 @@
         function showUpdateTime() {
             const now = new Date();
             const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            document.getElementById('update-time').innerText = `Последнее обновление: ${timeStr}`;
+            const timeElement = document.getElementById('update-time');
+            if (timeElement) timeElement.innerText = `Последнее обновление: ${timeStr}`;
         }
 
         async function loadData(showLoading = true) {
@@ -287,12 +287,14 @@
             isLoading = true;
             if (showLoading) {
                 const container = document.getElementById('cards-container');
-                container.innerHTML = '<div class="loading">Загрузка...</div>';
+                if (container) container.innerHTML = '<div class="loading">Загрузка...</div>';
             }
             
             try {
                 const response = await fetch(API_URL + "?action=get&t=" + Date.now());
                 const data = await response.json();
+                
+                console.log("Полученные данные:", data); // Для отладки
                 
                 if (data && data.length > 0) {
                     cardsData = data;
@@ -300,13 +302,13 @@
                     showUpdateTime();
                 } else if (showLoading) {
                     const container = document.getElementById('cards-container');
-                    container.innerHTML = '<div class="loading">Нет данных. Проверьте таблицу и лист "Мерч".</div>';
+                    if (container) container.innerHTML = '<div class="loading">Нет данных. Проверьте таблицу и лист "Мерч".</div>';
                 }
             } catch (error) {
                 console.error(error);
                 if (showLoading) {
                     const container = document.getElementById('cards-container');
-                    container.innerHTML = '<div class="loading">Ошибка загрузки. Проверьте интернет и ссылку.</div>';
+                    if (container) container.innerHTML = '<div class="loading">Ошибка загрузки. Проверьте интернет и ссылку.</div>';
                 }
             } finally {
                 isLoading = false;
@@ -315,24 +317,31 @@
 
         function renderCards() {
             const container = document.getElementById('cards-container');
+            if (!container) return;
             container.innerHTML = '';
             
             cardsData.forEach((card, index) => {
-                const sold = card.total - card.stock;
-                const revenue = sold * card.price;
-                const hasType = card.type && card.type.trim() !== "";
+                // Получаем значения с защитой от undefined
+                const type = card.type || "";
+                const name = card.name || "Без названия";
+                const total = typeof card.total === 'number' ? card.total : 0;
+                const stock = typeof card.stock === 'number' ? card.stock : 0;
+                const price = typeof card.price === 'number' ? card.price : 0;
                 
-                // Формируем HTML в зависимости от наличия типа
+                const sold = total - stock;
+                const revenue = sold * price;
+                
+                // Формируем HTML
                 let titleHtml = '';
-                if (hasType) {
+                if (type && type.trim() !== "") {
                     titleHtml = `
                         <div class="title-row">
-                            <span class="type-badge">${escapeHtml(card.type)}</span>
-                            <span class="name">${escapeHtml(card.name)}</span>
+                            <span class="type-badge">${escapeHtml(type)}</span>
+                            <span class="name">${escapeHtml(name)}</span>
                         </div>
                     `;
                 } else {
-                    titleHtml = `<div class="name">${escapeHtml(card.name)}</div>`;
+                    titleHtml = `<div class="name">${escapeHtml(name)}</div>`;
                 }
                 
                 const cardDiv = document.createElement('div');
@@ -341,9 +350,9 @@
                 cardDiv.innerHTML = `
                     <div class="info">
                         ${titleHtml}
-                        <div class="stock">Остаток: ${card.stock} шт</div>
-                        <div class="total">Всего: ${card.total} шт</div>
-                        ${card.price ? `<div class="price">💰 ${card.price} ₽</div>` : ''}
+                        <div class="stock">Остаток: ${stock} шт</div>
+                        <div class="total">Всего: ${total} шт</div>
+                        <div class="price">💰 ${price} ₽</div>
                         <div class="revenue">📊 Выручка: ${revenue} ₽</div>
                     </div>
                     <div class="buttons">
@@ -355,13 +364,18 @@
                 container.appendChild(cardDiv);
             });
             
+            // Назначаем обработчики кнопок
             document.querySelectorAll('.minus, .plus').forEach(btn => {
-                btn.addEventListener('click', async (e) => {
-                    const index = parseInt(btn.dataset.index);
-                    const delta = parseInt(btn.dataset.delta);
-                    await updateStock(index, delta);
-                });
+                btn.removeEventListener('click', handleButtonClick);
+                btn.addEventListener('click', handleButtonClick);
             });
+        }
+        
+        async function handleButtonClick(e) {
+            const btn = e.currentTarget;
+            const index = parseInt(btn.dataset.index);
+            const delta = parseInt(btn.dataset.delta);
+            await updateStock(index, delta);
         }
 
         async function updateStock(index, delta) {
@@ -378,6 +392,7 @@
                 return;
             }
             
+            // Оптимистичное обновление
             card.stock = newStock;
             renderCards();
             
@@ -398,6 +413,8 @@
         async function showHistory() {
             const modal = document.getElementById('historyModal');
             const historyList = document.getElementById('history-list');
+            if (!modal || !historyList) return;
+            
             modal.style.display = 'block';
             historyList.innerHTML = '<div class="loading">Загрузка...</div>';
             
@@ -432,12 +449,13 @@
         }
         
         function closeHistory() {
-            document.getElementById('historyModal').style.display = 'none';
+            const modal = document.getElementById('historyModal');
+            if (modal) modal.style.display = 'none';
         }
 
         function escapeHtml(str) {
             if (!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
+            return String(str).replace(/[&<>]/g, function(m) {
                 if (m === '&') return '&amp;';
                 if (m === '<') return '&lt;';
                 if (m === '>') return '&gt;';
