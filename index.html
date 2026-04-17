@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Учёт мерча</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            margin: 0;
+            padding: 16px;
+            padding-bottom: 80px;
+        }
+        h1 {
+            font-size: 24px;
+            margin: 0 0 8px 0;
+            color: #333;
+        }
+        .sub {
+            color: #666;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+        .card {
+            background: white;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        .info {
+            flex: 3;
+            min-width: 140px;
+        }
+        .name {
+            font-weight: bold;
+            font-size: 18px;
+            color: #222;
+        }
+        .stock {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c7da0;
+            margin-top: 4px;
+        }
+        .total {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+        }
+        .price {
+            font-size: 14px;
+            color: #2e7d32;
+            margin-top: 4px;
+        }
+        .revenue {
+            font-size: 13px;
+            color: #ff8c00;
+            margin-top: 2px;
+            font-weight: 500;
+        }
+        .buttons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        button {
+            font-size: 28px;
+            font-weight: bold;
+            width: 64px;
+            height: 64px;
+            border-radius: 32px;
+            border: none;
+            cursor: pointer;
+            transition: 0.1s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        button:active {
+            transform: scale(0.96);
+        }
+        .minus {
+            background: #ffebee;
+            color: #c62828;
+        }
+        .plus {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+        .refresh-btn {
+            background: #2196f3;
+            color: white;
+            width: auto;
+            height: auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 40px;
+            margin-bottom: 16px;
+        }
+        .loading {
+            text-align: center;
+            color: #888;
+            padding: 40px;
+        }
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            padding: 12px;
+            text-align: center;
+            border-top: 1px solid #ddd;
+            font-size: 12px;
+            color: #666;
+        }
+        @media (max-width: 500px) {
+            button {
+                width: 56px;
+                height: 56px;
+                font-size: 24px;
+            }
+            .name {
+                font-size: 16px;
+            }
+            .stock {
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>📦 Мерч</h1>
+    <div class="sub">Продажи на маркете</div>
+    
+    <button class="refresh-btn" onclick="loadData()">🔄 Обновить</button>
+    
+    <div id="cards-container">
+        <div class="loading">Загрузка...</div>
+    </div>
+    <div class="footer">
+        −1 при продаже | +1 при возврате | Данные синхронизируются
+    </div>
+
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbyI4-3-tHMsE0txfUUcD4gb7kgVAvYi7N3mkbuBLsx1C3Kp2math2dCw-p-Oh6-WEU/exec";
+        
+        let cardsData = [];
+
+        async function loadData() {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '<div class="loading">Загрузка...</div>';
+            
+            try {
+                const response = await fetch(API_URL + "?action=get");
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    cardsData = data;
+                    renderCards();
+                } else {
+                    container.innerHTML = '<div class="loading">Нет данных. Проверьте таблицу и лист "Мерч".</div>';
+                }
+            } catch (error) {
+                console.error(error);
+                container.innerHTML = '<div class="loading">Ошибка загрузки. Проверьте интернет и ссылку.</div>';
+            }
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cards-container');
+            container.innerHTML = '';
+            
+            cardsData.forEach((card, index) => {
+                const sold = card.total - card.stock;
+                const revenue = sold * card.price;
+                
+                const cardDiv = document.createElement('div');
+                cardDiv.className = 'card';
+                
+                cardDiv.innerHTML = `
+                    <div class="info">
+                        <div class="name">${escapeHtml(card.name)}</div>
+                        <div class="stock">Остаток: ${card.stock} шт</div>
+                        <div class="total">Всего: ${card.total} шт</div>
+                        ${card.price ? `<div class="price">💰 ${card.price} ₽</div>` : ''}
+                        <div class="revenue">📊 Выручка: ${revenue} ₽</div>
+                    </div>
+                    <div class="buttons">
+                        <button class="minus" data-index="${index}" data-delta="-1">−1</button>
+                        <button class="plus" data-index="${index}" data-delta="+1">+1</button>
+                    </div>
+                `;
+                
+                container.appendChild(cardDiv);
+            });
+            
+            document.querySelectorAll('.minus, .plus').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const index = parseInt(btn.dataset.index);
+                    const delta = parseInt(btn.dataset.delta);
+                    await updateStock(index, delta);
+                });
+            });
+        }
+
+        async function updateStock(index, delta) {
+            const card = cardsData[index];
+            if (!card) return;
+            
+            const newStock = card.stock + delta;
+            if (newStock < 0) {
+                alert("Остаток не может быть меньше 0");
+                return;
+            }
+            if (newStock > card.total) {
+                alert("Остаток не может быть больше " + card.total);
+                return;
+            }
+            
+            // Оптимистичное обновление
+            card.stock = newStock;
+            renderCards();
+            
+            try {
+                const response = await fetch(`${API_URL}?action=update&row=${index}&delta=${delta}`);
+                const result = await response.json();
+                if (!result.success) {
+                    await loadData();
+                    alert("Ошибка: " + (result.error || "неизвестная"));
+                }
+            } catch (error) {
+                console.error(error);
+                await loadData();
+                alert("Ошибка соединения");
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+
+        loadData();
+        setInterval(loadData, 10000);
+    </script>
+</body>
+</html>
