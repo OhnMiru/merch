@@ -290,6 +290,7 @@
             align-items: center;
             justify-content: center;
             gap: 6px;
+            transition: opacity 0.2s ease;
         }
         .auto-refresh-badge .dot {
             width: 6px;
@@ -701,22 +702,55 @@
             if (container && bar) { bar.style.width = '100%'; setTimeout(() => { container.classList.remove('active'); bar.style.width = '0%'; }, 300); }
         }
         
+        // Изменённая функция loadData
         async function loadData(showLoading = true, showProgress = false) {
             if (isLoading) return;
             isLoading = true;
+            
+            // Скрываем автообновление при загрузке с прогресс-баром
+            const autoRefreshBadge = document.querySelector('.auto-refresh-badge');
+            if (showProgress && autoRefreshBadge) {
+                autoRefreshBadge.style.opacity = '0';
+                autoRefreshBadge.style.visibility = 'hidden';
+            }
+            
             if (showProgress) showProgressBar();
-            if (showLoading) { const container = document.getElementById('cards-container'); if (container) container.innerHTML = '<div class="loading">Загрузка...</div>'; }
+            
+            // Только если showLoading = true, показываем текст "Загрузка..."
+            if (showLoading) {
+                const container = document.getElementById('cards-container');
+                if (container) container.innerHTML = '<div class="loading">Загрузка...</div>';
+            }
+            
             try {
                 const response = await fetch(API_URL + "?action=get&t=" + Date.now());
                 const data = await response.json();
+                
                 if (data && data.length > 0) {
                     originalCardsData = data;
                     updateTypeOptions();
                     filterAndSort();
                     showUpdateTime();
-                } else if (showLoading) { const container = document.getElementById('cards-container'); if (container) container.innerHTML = '<div class="loading">Нет данных. Проверьте таблицу и лист "Мерч".</div>'; }
-            } catch (error) { console.error(error); if (showLoading) { const container = document.getElementById('cards-container'); if (container) container.innerHTML = '<div class="loading">Ошибка загрузки. Проверьте интернет и ссылку.</div>'; } }
-            finally { isLoading = false; if (showProgress) hideProgressBar(); }
+                } else if (showLoading) {
+                    const container = document.getElementById('cards-container');
+                    if (container) container.innerHTML = '<div class="loading">Нет данных. Проверьте таблицу и лист "Мерч".</div>';
+                }
+            } catch (error) {
+                console.error(error);
+                if (showLoading) {
+                    const container = document.getElementById('cards-container');
+                    if (container) container.innerHTML = '<div class="loading">Ошибка загрузки. Проверьте интернет и ссылку.</div>';
+                }
+            } finally {
+                isLoading = false;
+                if (showProgress) hideProgressBar();
+                
+                // Возвращаем автообновление после загрузки
+                if (showProgress && autoRefreshBadge) {
+                    autoRefreshBadge.style.opacity = '';
+                    autoRefreshBadge.style.visibility = '';
+                }
+            }
         }
         
         async function showHistory() {
