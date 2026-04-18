@@ -194,7 +194,7 @@
             border-radius: 16px;
             z-index: 100;
             display: none;
-            max-height: 250px;
+            max-height: 300px;
             overflow-y: auto;
             margin-top: 4px;
             box-shadow: 0 4px 12px var(--shadow);
@@ -203,7 +203,14 @@
             display: block;
         }
         
-        /* Стили для опций с чекбоксами */
+        .filter-option-header {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+        
         .filter-option {
             padding: 8px 12px;
             display: flex;
@@ -227,12 +234,16 @@
             font-size: 13px;
             color: var(--text-primary);
         }
-        .filter-option-header {
-            padding: 8px 12px;
-            border-bottom: 1px solid var(--border-color);
-            font-weight: 600;
-            font-size: 12px;
-            color: var(--text-secondary);
+        
+        .sort-option {
+            padding: 10px 12px;
+            cursor: pointer;
+            transition: background 0.1s;
+            font-size: 13px;
+            color: var(--text-primary);
+        }
+        .sort-option:hover {
+            background: var(--badge-bg);
         }
         
         .reset-btn {
@@ -571,12 +582,10 @@
                 <!-- Мультиселект для типов -->
                 <div class="custom-select" id="typeFilterContainer">
                     <div class="custom-select-trigger" id="typeFilterTrigger">Все типы</div>
-                    <div class="custom-select-dropdown" id="typeFilterDropdown">
-                        <div class="filter-option-header">Выберите типы</div>
-                    </div>
+                    <div class="custom-select-dropdown" id="typeFilterDropdown"></div>
                 </div>
                 
-                <!-- Обычный селект для сортировки -->
+                <!-- Селект для сортировки -->
                 <div class="custom-select" id="sortByContainer">
                     <div class="custom-select-trigger" id="sortByTrigger">Без сортировки</div>
                     <div class="custom-select-dropdown" id="sortByDropdown"></div>
@@ -620,7 +629,7 @@
         let isLoading = false;
         let autoRefreshInterval = null;
         
-        let selectedTypes = new Set(); // Множественный выбор типов
+        let selectedTypes = new Set();
         let currentSortBy = "none";
         let typeOptions = [];
         
@@ -650,11 +659,9 @@
             }
         }
         
-        // Обновление отображения текста на триггере мультиселекта
         function updateTypeFilterTrigger() {
             const trigger = document.getElementById('typeFilterTrigger');
             if (!trigger) return;
-            
             if (selectedTypes.size === 0) {
                 trigger.textContent = 'Все типы';
             } else if (selectedTypes.size === 1) {
@@ -688,7 +695,6 @@
                         selectedTypes.delete(type);
                     }
                     updateTypeFilterTrigger();
-                    filterAndSort();  // Фильтруем сразу, без закрытия
                 };
                 
                 const label = document.createElement('label');
@@ -700,23 +706,24 @@
                 dropdown.appendChild(div);
             });
             
-            // Кнопка "Сбросить выбор" — компактная, без обводки
-            const resetDiv = document.createElement('div');
-            resetDiv.style.padding = '8px 12px';
-            resetDiv.style.borderTop = '1px solid var(--border-color)';
-            resetDiv.style.marginTop = '4px';
+            // Контейнер для кнопок в одной строке
+            const buttonsRow = document.createElement('div');
+            buttonsRow.style.display = 'flex';
+            buttonsRow.style.gap = '10px';
+            buttonsRow.style.padding = '10px 12px';
+            buttonsRow.style.borderTop = '1px solid var(--border-color)';
+            buttonsRow.style.marginTop = '4px';
             
             const resetBtn = document.createElement('button');
-            resetBtn.textContent = 'Сбросить выбор';
-            resetBtn.style.background = 'none';
-            resetBtn.style.border = 'none';
-            resetBtn.style.color = 'var(--stock-color)';
+            resetBtn.textContent = 'Сбросить';
+            resetBtn.style.flex = '1';
+            resetBtn.style.background = 'transparent';
+            resetBtn.style.border = '1px solid var(--border-color)';
+            resetBtn.style.borderRadius = '20px';
+            resetBtn.style.padding = '6px 0';
             resetBtn.style.fontSize = '12px';
             resetBtn.style.cursor = 'pointer';
-            resetBtn.style.padding = '4px 0';
-            resetBtn.style.width = 'auto';
-            resetBtn.style.display = 'inline-block';
-            resetBtn.style.textDecoration = 'underline';
+            resetBtn.style.color = 'var(--text-secondary)';
             resetBtn.onclick = (e) => {
                 e.stopPropagation();
                 selectedTypes.clear();
@@ -726,32 +733,26 @@
                 updateTypeFilterTrigger();
                 filterAndSort();
             };
-            resetDiv.appendChild(resetBtn);
-            
-            // Кнопка "Применить" для закрытия списка
-            const applyDiv = document.createElement('div');
-            applyDiv.style.padding = '8px 12px';
-            applyDiv.style.borderTop = '1px solid var(--border-color)';
-            applyDiv.style.textAlign = 'center';
             
             const applyBtn = document.createElement('button');
             applyBtn.textContent = 'Применить ✓';
+            applyBtn.style.flex = '1';
             applyBtn.style.background = 'var(--btn-bg)';
-            applyBtn.style.color = 'white';
             applyBtn.style.border = 'none';
             applyBtn.style.borderRadius = '20px';
-            applyBtn.style.padding = '6px 16px';
+            applyBtn.style.padding = '6px 0';
             applyBtn.style.fontSize = '12px';
             applyBtn.style.cursor = 'pointer';
-            applyBtn.style.width = 'auto';
+            applyBtn.style.color = 'white';
             applyBtn.onclick = (e) => {
                 e.stopPropagation();
+                filterAndSort();
                 document.getElementById('typeFilterDropdown').classList.remove('show');
             };
-            applyDiv.appendChild(applyBtn);
             
-            dropdown.appendChild(resetDiv);
-            dropdown.appendChild(applyDiv);
+            buttonsRow.appendChild(resetBtn);
+            buttonsRow.appendChild(applyBtn);
+            dropdown.appendChild(buttonsRow);
         }
         
         // Кастомный селект для сортировки
@@ -771,11 +772,30 @@
             
             function buildSortDropdown() {
                 sortDropdown.innerHTML = '';
+                
+                const header = document.createElement('div');
+                header.className = 'filter-option-header';
+                header.textContent = 'Выберите сортировку';
+                sortDropdown.appendChild(header);
+                
                 sortOptions.forEach(opt => {
                     const div = document.createElement('div');
-                    div.className = 'custom-select-option' + (currentSortBy === opt.value ? ' selected' : '');
+                    div.className = 'sort-option';
+                    div.style.color = currentSortBy === opt.value ? 'var(--btn-bg)' : 'var(--text-primary)';
+                    div.style.fontWeight = currentSortBy === opt.value ? '600' : 'normal';
+                    div.style.backgroundColor = currentSortBy === opt.value ? 'var(--badge-bg)' : 'transparent';
                     div.textContent = opt.label;
-                    div.dataset.value = opt.value;
+                    
+                    div.onmouseenter = () => {
+                        if (currentSortBy !== opt.value) {
+                            div.style.backgroundColor = 'var(--badge-bg)';
+                        }
+                    };
+                    div.onmouseleave = () => {
+                        if (currentSortBy !== opt.value) {
+                            div.style.backgroundColor = 'transparent';
+                        }
+                    };
                     div.onclick = (e) => {
                         e.stopPropagation();
                         currentSortBy = opt.value;
@@ -801,11 +821,9 @@
             buildSortDropdown();
         }
         
-        // Инициализация всех кастомных элементов
         function initCustomSelects() {
             initSortSelect();
             
-            // Настройка открытия/закрытия мультиселекта
             const typeTrigger = document.getElementById('typeFilterTrigger');
             const typeDropdown = document.getElementById('typeFilterDropdown');
             
@@ -830,7 +848,6 @@
             });
             typeOptions = Array.from(types).sort();
             
-            // Очищаем выбранные типы, которых больше нет в данных
             selectedTypes.forEach(type => {
                 if (!typeOptions.includes(type)) {
                     selectedTypes.delete(type);
@@ -849,12 +866,10 @@
                 filtered = filtered.filter(card => card.name.toLowerCase().includes(searchText));
             }
             
-            // Фильтр по типам (множественный выбор)
             if (selectedTypes.size > 0) {
                 filtered = filtered.filter(card => selectedTypes.has(card.type));
             }
             
-            // Сортировка
             if (currentSortBy !== 'none') {
                 switch(currentSortBy) {
                     case 'name': filtered.sort((a, b) => a.name.localeCompare(b.name)); break;
@@ -1055,6 +1070,20 @@
         window.onclick = function(event) { const modal = document.getElementById('historyModal'); if (event.target === modal) closeHistory(); }
         function startAutoRefresh() { if (autoRefreshInterval) clearInterval(autoRefreshInterval); autoRefreshInterval = setInterval(() => { loadData(false, true); }, 60000); }
         
+        function resetAllFilters() {
+            const searchInput = document.getElementById('searchInput');
+            if (searchInput) searchInput.value = '';
+            selectedTypes.clear();
+            updateTypeFilterTrigger();
+            document.querySelectorAll('#typeFilterDropdown input[type="checkbox"]').forEach(cb => {
+                cb.checked = false;
+            });
+            currentSortBy = 'none';
+            const sortTrigger = document.getElementById('sortByTrigger');
+            if (sortTrigger) sortTrigger.textContent = 'Без сортировки';
+            filterAndSort();
+        }
+        
         function checkPasswordAndLogin() {
             const passwordInput = document.getElementById('passwordInput');
             const errorMsg = document.getElementById('errorMsg');
@@ -1082,32 +1111,10 @@
             } else { loginOverlay.style.display = 'flex'; mainContent.style.display = 'none'; document.getElementById('passwordInput').focus(); }
         }
         
-        // Функция сброса всех фильтров
-        function resetAllFilters() {
-            const searchInput = document.getElementById('searchInput');
-            if (searchInput) searchInput.value = '';
-            
-            selectedTypes.clear();
-            updateTypeFilterTrigger();
-            
-            // Снимаем все чекбоксы
-            document.querySelectorAll('#typeFilterDropdown input[type="checkbox"]').forEach(cb => {
-                cb.checked = false;
-            });
-            
-            currentSortBy = 'none';
-            const sortTrigger = document.getElementById('sortByTrigger');
-            if (sortTrigger) sortTrigger.textContent = 'Без сортировки';
-            
-            filterAndSort();
-        }
-        
         document.addEventListener('DOMContentLoaded', () => {
             initTheme();
-            
             const themeToggle = document.getElementById('themeToggle');
             if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
-            
             const loginBtn = document.getElementById('loginBtn');
             if (loginBtn) loginBtn.addEventListener('click', checkPasswordAndLogin);
             const passwordInput = document.getElementById('passwordInput');
