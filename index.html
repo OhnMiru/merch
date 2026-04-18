@@ -26,6 +26,49 @@
             margin-bottom: 20px;
             font-size: 14px;
         }
+        
+        .search-panel {
+            margin-bottom: 16px;
+        }
+        .search-input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #dcedbc;
+            border-radius: 40px;
+            background: white;
+            margin-bottom: 10px;
+            outline: none;
+            box-sizing: border-box;
+        }
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .filter-select {
+            flex: 2;
+            padding: 10px;
+            font-size: 14px;
+            border: 1px solid #dcedbc;
+            border-radius: 40px;
+            background: white;
+            outline: none;
+        }
+        .reset-btn {
+            background: #e8f0e8;
+            color: #2d6a2d;
+            border: none;
+            border-radius: 40px;
+            padding: 0 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .reset-btn:active {
+            transform: scale(0.96);
+        }
+        
         .card {
             background: white;
             border-radius: 16px;
@@ -245,11 +288,31 @@
 </head>
 <body>
     <h1>📦 Драконий учёт мерча</h1>
-    <div class="sub">Всё на благо ясгу фд!</div>
+    <div class="sub">Всё на благо ясгу фд! Всё на благо ясгу фд!</div>
     
     <div style="display: flex; gap: 10px; margin-bottom: 16px;">
         <button class="refresh-btn" onclick="loadData(true)">🔄 Обновить</button>
         <button class="history-btn" onclick="showHistory()">📜 История</button>
+    </div>
+    
+    <div class="search-panel">
+        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по названию...">
+        
+        <div class="filter-row">
+            <select id="typeFilter" class="filter-select">
+                <option value="all">📋 Все типы</option>
+            </select>
+            
+            <select id="sortBy" class="filter-select">
+                <option value="name">📝 По названию</option>
+                <option value="stock">📦 По остатку (сначала мало)</option>
+                <option value="stockDesc">📦 По остатку (сначала много)</option>
+                <option value="price">💰 По цене</option>
+                <option value="type">🏷️ По типу</option>
+            </select>
+            
+            <button id="resetFilters" class="reset-btn">Сбросить</button>
+        </div>
     </div>
     
     <div id="cards-container">
@@ -277,52 +340,85 @@
         
         let cardsData = [];
         let isLoading = false;
-
-        function showUpdateTime() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            const timeElement = document.getElementById('update-time');
-            if (timeElement) timeElement.innerText = `Последнее обновление: ${timeStr}`;
+        
+        let originalCardsData = [];
+        let currentFilteredData = [];
+        
+        function getUniqueTypes() {
+            const types = new Set();
+            originalCardsData.forEach(card => {
+                if (card.type && card.type.trim()) {
+                    types.add(card.type);
+                }
+            });
+            return Array.from(types).sort();
         }
-
-        async function loadData(showLoading = true) {
-            if (isLoading) return;
+        
+        function updateTypeFilterOptions() {
+            const typeSelect = document.getElementById('typeFilter');
+            if (!typeSelect) return;
             
-            isLoading = true;
-            if (showLoading) {
-                const container = document.getElementById('cards-container');
-                if (container) container.innerHTML = '<div class="loading">Загрузка...</div>';
+            const types = getUniqueTypes();
+            typeSelect.innerHTML = '<option value="all">📋 Все типы</option>';
+            types.forEach(type => {
+                typeSelect.innerHTML += `<option value="${escapeHtml(type)}">🏷️ ${escapeHtml(type)}</option>`;
+            });
+        }
+        
+        function filterAndSort() {
+            const searchText = document.getElementById('searchInput')?.value.toLowerCase() || '';
+            const selectedType = document.getElementById('typeFilter')?.value || 'all';
+            const sortBy = document.getElementById('sortBy')?.value || 'name';
+            
+            let filtered = [...originalCardsData];
+            
+            if (searchText) {
+                filtered = filtered.filter(card => 
+                    card.name.toLowerCase().includes(searchText)
+                );
             }
             
-            try {
-                const response = await fetch(API_URL + "?action=get&t=" + Date.now());
-                const data = await response.json();
-                
-                if (data && data.length > 0) {
-                    cardsData = data;
-                    renderCards();
-                    showUpdateTime();
-                } else if (showLoading) {
-                    const container = document.getElementById('cards-container');
-                    if (container) container.innerHTML = '<div class="loading">Нет данных. Проверьте таблицу и лист "Мерч".</div>';
-                }
-            } catch (error) {
-                console.error(error);
-                if (showLoading) {
-                    const container = document.getElementById('cards-container');
-                    if (container) container.innerHTML = '<div class="loading">Ошибка загрузки. Проверьте интернет и ссылку.</div>';
-                }
-            } finally {
-                isLoading = false;
+            if (selectedType !== 'all') {
+                filtered = filtered.filter(card => card.type === selectedType);
             }
+            
+            switch(sortBy) {
+                case 'name':
+                    filtered.sort((a, b) => a.name.localeCompare(b.name));
+                    break;
+                case 'stock':
+                    filtered.sort((a, b) => (a.stock || 0) - (b.stock || 0));
+                    break;
+                case 'stockDesc':
+                    filtered.sort((a, b) => (b.stock || 0) - (a.stock || 0));
+                    break;
+                case 'price':
+                    filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+                    break;
+                case 'type':
+                    filtered.sort((a, b) => (a.type || '').localeCompare(b.type || ''));
+                    break;
+                default:
+                    filtered.sort((a, b) => a.name.localeCompare(b.name));
+            }
+            
+            currentFilteredData = filtered;
+            renderFilteredCards();
         }
-
-        function renderCards() {
+        
+        function renderFilteredCards() {
             const container = document.getElementById('cards-container');
             if (!container) return;
             container.innerHTML = '';
             
-            cardsData.forEach((card, index) => {
+            if (currentFilteredData.length === 0) {
+                container.innerHTML = '<div class="loading">🔍 Ничего не найдено</div>';
+                return;
+            }
+            
+            currentFilteredData.forEach((card, filteredIndex) => {
+                const originalIndex = originalCardsData.findIndex(orig => orig.name === card.name && orig.type === card.type);
+                
                 const type = card.type || "";
                 const name = card.name || "Без названия";
                 const total = typeof card.total === 'number' ? card.total : 0;
@@ -347,8 +443,8 @@
                         <div class="revenue">📊 Выручка: ${revenue} ₽</div>
                     </div>
                     <div class="buttons">
-                        <button class="minus" data-index="${index}" data-delta="-1">−1</button>
-                        <button class="plus" data-index="${index}" data-delta="+1">+1</button>
+                        <button class="minus" data-index="${originalIndex}" data-delta="-1">−1</button>
+                        <button class="plus" data-index="${originalIndex}" data-delta="+1">+1</button>
                     </div>
                 `;
                 
@@ -367,9 +463,9 @@
             const delta = parseInt(btn.dataset.delta);
             await updateStock(index, delta);
         }
-
+        
         async function updateStock(index, delta) {
-            const card = cardsData[index];
+            const card = originalCardsData[index];
             if (!card) return;
             
             const newStock = card.stock + delta;
@@ -383,7 +479,7 @@
             }
             
             card.stock = newStock;
-            renderCards();
+            filterAndSort();
             
             try {
                 const response = await fetch(`${API_URL}?action=update&row=${index}&delta=${delta}&t=${Date.now()}`);
@@ -396,6 +492,46 @@
                 console.error(error);
                 await loadData(true);
                 alert("Ошибка соединения");
+            }
+        }
+
+        function showUpdateTime() {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            const timeElement = document.getElementById('update-time');
+            if (timeElement) timeElement.innerText = `Последнее обновление: ${timeStr}`;
+        }
+
+        async function loadData(showLoading = true) {
+            if (isLoading) return;
+            
+            isLoading = true;
+            if (showLoading) {
+                const container = document.getElementById('cards-container');
+                if (container) container.innerHTML = '<div class="loading">Загрузка...</div>';
+            }
+            
+            try {
+                const response = await fetch(API_URL + "?action=get&t=" + Date.now());
+                const data = await response.json();
+                
+                if (data && data.length > 0) {
+                    originalCardsData = data;
+                    updateTypeFilterOptions();
+                    filterAndSort();
+                    showUpdateTime();
+                } else if (showLoading) {
+                    const container = document.getElementById('cards-container');
+                    if (container) container.innerHTML = '<div class="loading">Нет данных. Проверьте таблицу и лист "Мерч".</div>';
+                }
+            } catch (error) {
+                console.error(error);
+                if (showLoading) {
+                    const container = document.getElementById('cards-container');
+                    if (container) container.innerHTML = '<div class="loading">Ошибка загрузки. Проверьте интернет и ссылку.</div>';
+                }
+            } finally {
+                isLoading = false;
             }
         }
 
@@ -458,6 +594,25 @@
                 closeHistory();
             }
         }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            const searchInput = document.getElementById('searchInput');
+            const typeFilter = document.getElementById('typeFilter');
+            const sortBy = document.getElementById('sortBy');
+            const resetBtn = document.getElementById('resetFilters');
+            
+            if (searchInput) searchInput.addEventListener('input', () => filterAndSort());
+            if (typeFilter) typeFilter.addEventListener('change', () => filterAndSort());
+            if (sortBy) sortBy.addEventListener('change', () => filterAndSort());
+            if (resetBtn) {
+                resetBtn.addEventListener('click', () => {
+                    if (searchInput) searchInput.value = '';
+                    if (typeFilter) typeFilter.value = 'all';
+                    if (sortBy) sortBy.value = 'name';
+                    filterAndSort();
+                });
+            }
+        });
 
         loadData(true);
     </script>
