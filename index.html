@@ -9,41 +9,125 @@
             box-sizing: border-box;
             user-select: none;
         }
+        
+        /* Светлая тема (по умолчанию) */
+        :root {
+            --bg-color: #f0f7f0;
+            --card-bg: white;
+            --text-primary: #1a3b1a;
+            --text-secondary: #4a7c4a;
+            --text-muted: #6b8c6b;
+            --border-color: #dcedbc;
+            --badge-bg: #e8f0e8;
+            --badge-text: #2d6a2d;
+            --stock-color: #2d6a2d;
+            --price-color: #3d7a3d;
+            --revenue-color: #e68a2e;
+            --minus-bg: #fce4e4;
+            --minus-color: #c0392b;
+            --plus-bg: #e8f5e8;
+            --plus-color: #2d6a2d;
+            --btn-bg: #2d6a2d;
+            --footer-bg: white;
+            --shadow: rgba(0,0,0,0.08);
+            --select-border: #c8e0c8;
+            --reset-bg: #d4e0d4;
+            --reset-color: #1a4d1a;
+            --progress-bg: #e0e0e0;
+            --progress-bar: #2d6a2d;
+            --modal-bg: white;
+            --modal-overlay: rgba(0,0,0,0.7);
+        }
+        
+        /* Тёмная тема */
+        body.dark {
+            --bg-color: #1a2a1a;
+            --card-bg: #2a3a2a;
+            --text-primary: #c8e6c8;
+            --text-secondary: #8aa88a;
+            --text-muted: #6b8c6b;
+            --border-color: #3a5a3a;
+            --badge-bg: #3a5a3a;
+            --badge-text: #a8c8a8;
+            --stock-color: #6ab06a;
+            --price-color: #7cb87c;
+            --revenue-color: #f0a04e;
+            --minus-bg: #4a2a2a;
+            --minus-color: #e08070;
+            --plus-bg: #2a4a2a;
+            --plus-color: #6ab06a;
+            --btn-bg: #3a6a3a;
+            --footer-bg: #1a2a1a;
+            --shadow: rgba(0,0,0,0.2);
+            --select-border: #3a5a3a;
+            --reset-bg: #3a5a3a;
+            --reset-color: #a8c8a8;
+            --progress-bg: #2a3a2a;
+            --progress-bar: #6ab06a;
+            --modal-bg: #2a3a2a;
+            --modal-overlay: rgba(0,0,0,0.9);
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f0f7f0;
+            background: var(--bg-color);
             margin: 0;
             padding: 12px;
             padding-bottom: 40px;
+            transition: background 0.3s ease, color 0.2s ease;
         }
+        
+        /* Кнопка переключения темы */
+        .theme-toggle {
+            position: fixed;
+            top: 12px;
+            right: 12px;
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 30px;
+            width: 40px;
+            height: 40px;
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1500;
+            box-shadow: 0 2px 8px var(--shadow);
+            transition: all 0.2s ease;
+        }
+        .theme-toggle:active {
+            transform: scale(0.95);
+        }
+        
         h1 {
             font-size: 22px;
             margin: 0 0 4px 0;
-            color: #2d6a2d;
+            color: var(--badge-text);
         }
         .sub {
-            color: #4a7c4a;
+            color: var(--text-secondary);
             margin-bottom: 16px;
             font-size: 13px;
         }
         
         .progress-container {
             width: 100%;
-            background: #e0e0e0;
+            background: var(--progress-bg);
             border-radius: 20px;
             margin-bottom: 12px;
             overflow: hidden;
             display: none;
         }
-        .progress-container.active, .progress-container[style*="display: block"] {
-            display: block !important;
-        }
         .progress-bar {
             width: 0%;
             height: 4px;
-            background: #2d6a2d;
+            background: var(--progress-bar);
             border-radius: 20px;
             transition: width 0.2s ease;
+        }
+        .progress-container.active {
+            display: block !important;
         }
         
         .search-panel {
@@ -53,12 +137,16 @@
             width: 100%;
             padding: 10px 14px;
             font-size: 15px;
-            border: 1px solid #dcedbc;
+            border: 1px solid var(--border-color);
             border-radius: 30px;
-            background: white;
+            background: var(--card-bg);
+            color: var(--text-primary);
             margin-bottom: 8px;
             outline: none;
             box-sizing: border-box;
+        }
+        .search-input::placeholder {
+            color: var(--text-muted);
         }
         .filter-row {
             display: flex;
@@ -67,15 +155,14 @@
             align-items: center;
         }
         
-        /* Кастомные выпадающие списки */
         .custom-select {
             flex: 1;
             position: relative;
             min-width: 0;
         }
         .custom-select-trigger {
-            background: white;
-            border: 1px solid #c8e0c8;
+            background: var(--card-bg);
+            border: 1px solid var(--select-border);
             border-radius: 30px;
             padding: 8px 28px 8px 12px;
             font-size: 13px;
@@ -84,6 +171,7 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            color: var(--text-primary);
         }
         .custom-select-trigger:after {
             content: '▼';
@@ -92,22 +180,22 @@
             right: 12px;
             top: 50%;
             transform: translateY(-50%);
-            color: #4a7c4a;
+            color: var(--text-secondary);
         }
         .custom-select-dropdown {
             position: absolute;
             top: 100%;
             left: 0;
             right: 0;
-            background: white;
-            border: 1px solid #c8e0c8;
+            background: var(--card-bg);
+            border: 1px solid var(--select-border);
             border-radius: 16px;
             z-index: 100;
             display: none;
             max-height: 200px;
             overflow-y: auto;
             margin-top: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 12px var(--shadow);
         }
         .custom-select-dropdown.show {
             display: block;
@@ -117,19 +205,20 @@
             font-size: 13px;
             cursor: pointer;
             transition: background 0.1s;
+            color: var(--text-primary);
         }
         .custom-select-option:hover {
-            background: #e8f0e8;
+            background: var(--badge-bg);
         }
         .custom-select-option.selected {
-            background: #2d6a2d;
+            background: var(--btn-bg);
             color: white;
             font-weight: 600;
         }
         
         .reset-btn {
-            background: #d4e0d4;
-            color: #1a4d1a;
+            background: var(--reset-bg);
+            color: var(--reset-color);
             border: none;
             border-radius: 30px;
             width: 36px;
@@ -147,11 +236,11 @@
         }
         
         .card {
-            background: white;
+            background: var(--card-bg);
             border-radius: 14px;
             margin-bottom: 10px;
             padding: 10px 12px;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            box-shadow: 0 1px 4px var(--shadow);
             display: flex;
             align-items: center;
             justify-content: space-between;
@@ -171,19 +260,19 @@
         }
         .type-badge {
             display: inline-block;
-            background: #e8f0e8;
+            background: var(--badge-bg);
             padding: 2px 8px;
             border-radius: 16px;
             font-size: 11px;
             font-weight: 500;
-            color: #2d6a2d;
+            color: var(--badge-text);
             line-height: 1.3;
             white-space: nowrap;
         }
         .name {
             font-weight: bold;
             font-size: 22px;
-            color: #1a3b1a;
+            color: var(--text-primary);
             line-height: 1.2;
             transform: translateY(1px);
         }
@@ -191,7 +280,7 @@
         .stock {
             font-size: 20px;
             font-weight: bold;
-            color: #2d6a2d;
+            color: var(--stock-color);
             margin-top: 0;
             margin-bottom: 3px;
         }
@@ -204,13 +293,13 @@
             line-height: 1.3;
         }
         .total {
-            color: #6b8c6b;
+            color: var(--text-muted);
         }
         .price {
-            color: #3d7a3d;
+            color: var(--price-color);
         }
         .revenue {
-            color: #e68a2e;
+            color: var(--revenue-color);
         }
         
         .buttons {
@@ -227,22 +316,22 @@
             border: none;
             cursor: pointer;
             transition: 0.1s;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 1px 3px var(--shadow);
         }
         button:active {
             transform: scale(0.96);
         }
         .minus {
-            background: #fce4e4;
-            color: #c0392b;
+            background: var(--minus-bg);
+            color: var(--minus-color);
         }
         .plus {
-            background: #e8f5e8;
-            color: #2d6a2d;
+            background: var(--plus-bg);
+            color: var(--plus-color);
         }
         
         .refresh-btn, .history-btn {
-            background: #2d6a2d;
+            background: var(--btn-bg);
             color: white;
             width: auto;
             height: auto;
@@ -257,7 +346,7 @@
         
         .loading {
             text-align: center;
-            color: #6b8c6b;
+            color: var(--text-muted);
             padding: 30px;
             font-size: 14px;
         }
@@ -266,23 +355,23 @@
             bottom: 0;
             left: 0;
             width: 100%;
-            background: white;
+            background: var(--footer-bg);
             padding: 8px 10px;
             text-align: center;
-            border-top: 1px solid #dcedbc;
+            border-top: 1px solid var(--border-color);
             font-size: 11px;
-            color: #6b8c6b;
+            color: var(--text-muted);
         }
         .last-update {
             font-size: 10px;
-            color: #8aa88a;
+            color: var(--text-muted);
             text-align: center;
             margin-top: 8px;
             margin-bottom: 4px;
         }
         .auto-refresh-badge {
             font-size: 9px;
-            color: #8aa88a;
+            color: var(--text-muted);
             text-align: center;
             margin-top: 0;
             margin-bottom: 8px;
@@ -295,7 +384,7 @@
         .auto-refresh-badge .dot {
             width: 6px;
             height: 6px;
-            background-color: #2d6a2d;
+            background-color: var(--stock-color);
             border-radius: 50%;
             display: inline-block;
             animation: pulse 2s infinite;
@@ -313,12 +402,12 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.7);
+            background: var(--modal-overlay);
             z-index: 1000;
             overflow-y: auto;
         }
         .modal-content {
-            background: white;
+            background: var(--modal-bg);
             margin: 20px;
             border-radius: 20px;
             padding: 20px;
@@ -332,7 +421,7 @@
             margin-bottom: 16px;
             font-size: 18px;
             font-weight: bold;
-            color: #2d6a2d;
+            color: var(--badge-text);
         }
         .close-btn {
             background: none;
@@ -342,28 +431,44 @@
             width: 36px;
             height: 36px;
             box-shadow: none;
-            color: #6b8c6b;
+            color: var(--text-muted);
         }
         .history-item {
-            border-bottom: 1px solid #e8f0e8;
+            border-bottom: 1px solid var(--border-color);
             padding: 10px 0;
         }
         .history-date {
             font-size: 10px;
-            color: #8aa88a;
+            color: var(--text-muted);
         }
         .history-name {
             font-weight: bold;
             font-size: 15px;
-            color: #1a3b1a;
+            color: var(--text-primary);
         }
         .history-sale {
-            color: #c0392b;
+            color: var(--minus-color);
             font-size: 13px;
         }
         .history-return {
-            color: #2d6a2d;
+            color: var(--stock-color);
             font-size: 13px;
+        }
+        
+        /* Стили для экрана входа в тёмной теме */
+        .login-card {
+            background: var(--card-bg);
+        }
+        .login-card h2 {
+            color: var(--badge-text);
+        }
+        .login-card input {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+        }
+        .login-card input::placeholder {
+            color: var(--text-muted);
         }
         
         @media (min-width: 768px) {
@@ -403,16 +508,26 @@
                 padding: 8px 24px 8px 10px;
                 font-size: 12px;
             }
+            .theme-toggle {
+                top: 8px;
+                right: 8px;
+                width: 36px;
+                height: 36px;
+                font-size: 18px;
+            }
         }
     </style>
 </head>
 <body>
-    <div id="loginOverlay" class="login-overlay" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#f0f7f0; z-index:2000; display:flex; align-items:center; justify-content:center;">
-        <div style="background:white; border-radius:24px; padding:32px 24px; width:280px; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.15);">
-            <h2 style="color:#2d6a2d; margin-bottom:20px;">Вход в сокровищницу дракона 🐉</h2>
-            <input type="password" id="passwordInput" style="width:100%; padding:12px; font-size:16px; border:1px solid #dcedbc; border-radius:30px; outline:none; margin-bottom:16px; text-align:center; box-sizing:border-box;" placeholder="Введите пароль" autofocus>
-            <button id="loginBtn" style="background:#2d6a2d; color:white; border:none; border-radius:30px; padding:12px 24px; font-size:16px; font-weight:500; width:100%; cursor:pointer;">Войти</button>
-            <div id="errorMsg" style="color:#c0392b; font-size:12px; margin-top:12px; display:none;">Дракон недоволен</div>
+    <!-- Кнопка переключения темы -->
+    <button class="theme-toggle" id="themeToggle" title="Сменить тему">🌙</button>
+    
+    <div id="loginOverlay" class="login-overlay" style="position: fixed; top:0; left:0; width:100%; height:100%; background:var(--bg-color); z-index:2000; display:flex; align-items:center; justify-content:center;">
+        <div class="login-card" style="background:var(--card-bg); border-radius:24px; padding:32px 24px; width:280px; text-align:center; box-shadow:0 8px 24px var(--shadow);">
+            <h2 style="color:var(--badge-text); margin-bottom:20px;">Вход в сокровищницу дракона 🐉</h2>
+            <input type="password" id="passwordInput" style="width:100%; padding:12px; font-size:16px; border:1px solid var(--border-color); border-radius:30px; outline:none; margin-bottom:16px; text-align:center; box-sizing:border-box; background:var(--card-bg); color:var(--text-primary);" placeholder="Введите пароль" autofocus>
+            <button id="loginBtn" style="background:var(--btn-bg); color:white; border:none; border-radius:30px; padding:12px 24px; font-size:16px; font-weight:500; width:100%; cursor:pointer;">Войти</button>
+            <div id="errorMsg" style="color:var(--minus-color); font-size:12px; margin-top:12px; display:none;">Дракон недоволен</div>
         </div>
     </div>
 
@@ -421,7 +536,7 @@
         <div class="sub">Всё на благо ясгу фд! Всё на благо ясгу фд!</div>
         
         <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-            <button class="refresh-btn" onclick="loadData(true)">🔄 Обновить</button>
+            <button class="refresh-btn" onclick="loadData(true, true)">🔄 Обновить</button>
             <button class="history-btn" onclick="showHistory()">📜 История</button>
         </div>
         
@@ -456,7 +571,7 @@
             <span>Автообновление каждую минуту</span>
         </div>
         <div class="footer">
-            −1 продажа | +1 возврат | <a href="https://docs.google.com/spreadsheets/d/123whYLgKX3E7a_Ov9X44sOe1TrlA5aifjtYanTsn7xk/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" style="color: #6b8c6b; text-decoration: underline;">Синхронизация с таблицей</a>
+            −1 продажа | +1 возврат | <a href="https://docs.google.com/spreadsheets/d/123whYLgKX3E7a_Ov9X44sOe1TrlA5aifjtYanTsn7xk/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" style="color: var(--text-muted); text-decoration: underline;">Синхронизация с таблицей</a>
         </div>
     </div>
 
@@ -485,15 +600,39 @@
         let currentSortBy = "none";
         let typeOptions = [];
         
+        // ========== ТЁМНАЯ ТЕМА ==========
+        function initTheme() {
+            const savedTheme = localStorage.getItem('merch_theme');
+            const themeToggle = document.getElementById('themeToggle');
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark');
+                if (themeToggle) themeToggle.textContent = '☀️';
+            } else {
+                document.body.classList.remove('dark');
+                if (themeToggle) themeToggle.textContent = '🌙';
+            }
+        }
+        
+        function toggleTheme() {
+            const themeToggle = document.getElementById('themeToggle');
+            if (document.body.classList.contains('dark')) {
+                document.body.classList.remove('dark');
+                localStorage.setItem('merch_theme', 'light');
+                if (themeToggle) themeToggle.textContent = '🌙';
+            } else {
+                document.body.classList.add('dark');
+                localStorage.setItem('merch_theme', 'dark');
+                if (themeToggle) themeToggle.textContent = '☀️';
+            }
+        }
+        
         // Кастомные select
         function initCustomSelects() {
-            // Тип фильтра
             const typeTrigger = document.getElementById('typeFilterTrigger');
             const typeDropdown = document.getElementById('typeFilterDropdown');
             const sortTrigger = document.getElementById('sortByTrigger');
             const sortDropdown = document.getElementById('sortByDropdown');
             
-            // Опции сортировки
             const sortOptions = [
                 { value: "none", label: "Без сортировки" },
                 { value: "name", label: "По названию" },
@@ -680,8 +819,8 @@
             try {
                 const response = await fetch(`${API_URL}?action=update&row=${index}&delta=${delta}&t=${Date.now()}`);
                 const result = await response.json();
-                if (!result.success) { await loadData(true); alert("Ошибка: " + (result.error || "неизвестная")); }
-            } catch (error) { console.error(error); await loadData(true); alert("Ошибка соединения"); }
+                if (!result.success) { await loadData(true, true); alert("Ошибка: " + (result.error || "неизвестная")); }
+            } catch (error) { console.error(error); await loadData(true, true); alert("Ошибка соединения"); }
         }
         
         function showUpdateTime() {
@@ -698,7 +837,6 @@
                 container.style.display = 'block';
                 container.classList.add('active');
                 bar.style.width = '0%';
-                // Анимация заполнения до 90%
                 setTimeout(() => {
                     if (bar) bar.style.width = '90%';
                 }, 50);
@@ -722,23 +860,19 @@
             if (isLoading) return;
             isLoading = true;
             
-            // При автообновлении (showProgress=true и showLoading=false) — ничего не показываем
             const isAutoRefresh = showProgress && !showLoading;
             
             if (!isAutoRefresh) {
-                // Скрываем автообновление при ручной загрузке
                 const autoRefreshBadge = document.querySelector('.auto-refresh-badge');
                 if (autoRefreshBadge) {
                     autoRefreshBadge.style.opacity = '0';
                     autoRefreshBadge.style.visibility = 'hidden';
                 }
                 
-                // Показываем прогресс-бар (если запрошено)
                 if (showProgress) {
                     showProgressBar();
                 }
                 
-                // Показываем текст "Загрузка..." (если запрошено)
                 if (showLoading) {
                     const container = document.getElementById('cards-container');
                     if (container) container.innerHTML = '<div class="loading">Загрузка...</div>';
@@ -838,6 +972,11 @@
         }
         
         document.addEventListener('DOMContentLoaded', () => {
+            initTheme();
+            
+            const themeToggle = document.getElementById('themeToggle');
+            if (themeToggle) themeToggle.addEventListener('click', toggleTheme);
+            
             const loginBtn = document.getElementById('loginBtn');
             if (loginBtn) loginBtn.addEventListener('click', checkPasswordAndLogin);
             const passwordInput = document.getElementById('passwordInput');
