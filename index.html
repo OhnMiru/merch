@@ -16,11 +16,6 @@
             padding: 12px;
             padding-bottom: 45px;
         }
-        select, .filter-select, select.filter-select {
-            border-radius: 30px !important;
-            -webkit-border-radius: 30px !important;
-            -moz-border-radius: 30px !important;
-        }
         h1 {
             font-size: 22px;
             margin: 0 0 4px 0;
@@ -32,71 +27,6 @@
             font-size: 13px;
         }
         
-        /* Экран входа */
-        .login-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #f0f7f0;
-            z-index: 2000;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            backdrop-filter: blur(0px);
-        }
-        .login-card {
-            background: white;
-            border-radius: 24px;
-            padding: 32px 24px;
-            width: 280px;
-            text-align: center;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
-        }
-        .login-card h2 {
-            color: #2d6a2d;
-            margin-bottom: 20px;
-            font-size: 24px;
-        }
-        .login-card input {
-            width: 100%;
-            padding: 12px;
-            font-size: 16px;
-            border: 1px solid #dcedbc;
-            border-radius: 30px;
-            outline: none;
-            margin-bottom: 16px;
-            text-align: center;
-            box-sizing: border-box;
-        }
-        .login-card button {
-            background: #2d6a2d;
-            color: white;
-            border: none;
-            border-radius: 30px;
-            padding: 12px 24px;
-            font-size: 16px;
-            font-weight: 500;
-            width: 100%;
-            cursor: pointer;
-        }
-        .login-card button:active {
-            transform: scale(0.96);
-        }
-        .error-msg {
-            color: #c0392b;
-            font-size: 12px;
-            margin-top: 12px;
-            display: none;
-        }
-        
-        /* Основной контент (изначально скрыт) */
-        .main-content {
-            display: none;
-        }
-        
-        /* Прогресс-бар */
         .progress-container {
             width: 100%;
             background: #e0e0e0;
@@ -137,33 +67,63 @@
             align-items: center;
         }
         
-        .filter-select {
+        /* Кастомные выпадающие списки */
+        .custom-select {
             flex: 1;
-            padding: 8px 28px 8px 12px;
-            font-size: 13px;
-            font-weight: normal;
+            position: relative;
+            min-width: 0;
+        }
+        .custom-select-trigger {
+            background: white;
             border: 1px solid #c8e0c8;
             border-radius: 30px;
-            background: white;
-            outline: none;
-            min-width: 0;
-            appearance: none;
-            -webkit-appearance: none;
-            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234a7c4a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
-            background-repeat: no-repeat;
-            background-position: right 12px center;
-            background-size: 14px;
+            padding: 8px 28px 8px 12px;
+            font-size: 13px;
             cursor: pointer;
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .filter-select option {
-            font-weight: normal;
-            padding: 8px;
+        .custom-select-trigger:after {
+            content: '▼';
+            font-size: 8px;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #4a7c4a;
         }
-        .filter-select option:checked {
-            font-weight: 600;
+        .custom-select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #c8e0c8;
+            border-radius: 16px;
+            z-index: 100;
+            display: none;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        .custom-select-dropdown.show {
+            display: block;
+        }
+        .custom-select-option {
+            padding: 10px 12px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.1s;
+        }
+        .custom-select-option:hover {
             background: #e8f0e8;
         }
-        .filter-select option:first-child {
+        .custom-select-option.selected {
+            background: #2d6a2d;
+            color: white;
             font-weight: 600;
         }
         
@@ -280,6 +240,7 @@
             background: #e8f5e8;
             color: #2d6a2d;
         }
+        
         .refresh-btn, .history-btn {
             background: #2d6a2d;
             color: white;
@@ -293,6 +254,7 @@
             border: none;
             box-shadow: none;
         }
+        
         .loading {
             text-align: center;
             color: #6b8c6b;
@@ -305,7 +267,7 @@
             left: 0;
             width: 100%;
             background: white;
-            padding: 10px;
+            padding: 8px 10px;
             text-align: center;
             border-top: 1px solid #dcedbc;
             font-size: 11px;
@@ -323,7 +285,7 @@
             color: #8aa88a;
             text-align: center;
             margin-top: 0;
-            margin-bottom: 4px;
+            margin-bottom: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -436,27 +398,24 @@
                 font-size: 10px;
                 padding: 1px 6px;
             }
-            .filter-select {
+            .custom-select-trigger {
                 padding: 8px 24px 8px 10px;
                 font-size: 12px;
-                background-position: right 10px center;
             }
         }
     </style>
 </head>
 <body>
-    <!-- Экран входа -->
-    <div id="loginOverlay" class="login-overlay">
-        <div class="login-card">
-            <h2>Вход в пещеру дракона 🐉 </h2>
-            <input type="password" id="passwordInput" placeholder="Введите пароль" autofocus>
-            <button id="loginBtn">Войти</button>
-            <div id="errorMsg" class="error-msg">Неверный пароль</div>
+    <div id="loginOverlay" class="login-overlay" style="position: fixed; top:0; left:0; width:100%; height:100%; background:#f0f7f0; z-index:2000; display:flex; align-items:center; justify-content:center;">
+        <div style="background:white; border-radius:24px; padding:32px 24px; width:280px; text-align:center; box-shadow:0 8px 24px rgba(0,0,0,0.15);">
+            <h2 style="color:#2d6a2d; margin-bottom:20px;">Вход в сокровищницу дракона 🐉</h2>
+            <input type="password" id="passwordInput" style="width:100%; padding:12px; font-size:16px; border:1px solid #dcedbc; border-radius:30px; outline:none; margin-bottom:16px; text-align:center; box-sizing:border-box;" placeholder="Введите пароль" autofocus>
+            <button id="loginBtn" style="background:#2d6a2d; color:white; border:none; border-radius:30px; padding:12px 24px; font-size:16px; font-weight:500; width:100%; cursor:pointer;">Войти</button>
+            <div id="errorMsg" style="color:#c0392b; font-size:12px; margin-top:12px; display:none;">Дракон недоволен</div>
         </div>
     </div>
 
-    <!-- Основной контент (скрыт до входа) -->
-    <div id="mainContent" class="main-content">
+    <div id="mainContent" style="display:none;">
         <h1>Драконий учёт мерча 🐉</h1>
         <div class="sub">Всё на благо ясгу фд! Всё на благо ясгу фд!</div>
         
@@ -473,19 +432,15 @@
             <input type="text" id="searchInput" class="search-input" placeholder="Поиск по названию...">
             
             <div class="filter-row">
-                <select id="typeFilter" class="filter-select">
-                    <option value="all" style="font-weight: 600;">Все типы</option>
-                </select>
+                <div class="custom-select" id="typeFilterContainer">
+                    <div class="custom-select-trigger" id="typeFilterTrigger">Все типы</div>
+                    <div class="custom-select-dropdown" id="typeFilterDropdown"></div>
+                </div>
                 
-                <select id="sortBy" class="filter-select">
-                    <option value="none" style="font-weight: 600;">Без сортировки</option>
-                    <option value="name">По названию</option>
-                    <option value="stock">По остатку: сначала мало</option>
-                    <option value="stockDesc">По остатку: сначала много</option>
-                    <option value="priceAsc">По цене: сначала дешёвое</option>
-                    <option value="priceDesc">По цене: сначала дорогое</option>
-                    <option value="type">По типу</option>
-                </select>
+                <div class="custom-select" id="sortByContainer">
+                    <div class="custom-select-trigger" id="sortByTrigger">Без сортировки</div>
+                    <div class="custom-select-dropdown" id="sortByDropdown"></div>
+                </div>
                 
                 <button id="resetFilters" class="reset-btn" title="Сбросить фильтры">✕</button>
             </div>
@@ -520,174 +475,168 @@
         const API_URL = "https://script.google.com/macros/s/AKfycbz_oc2Smer_9xHNJWCC8be-dER63JxXO1WighSsEVVE9o15J3Lqvz45DLe6WENQvuGV/exec";
         const CORRECT_PASSWORD = "ясгу";
         
-        let cardsData = [];
-        let isLoading = false;
-        
         let originalCardsData = [];
         let currentFilteredData = [];
-        
+        let isLoading = false;
         let autoRefreshInterval = null;
         
-        // === Управление входом ===
-        function checkPasswordAndLogin() {
-            const passwordInput = document.getElementById('passwordInput');
-            const errorMsg = document.getElementById('errorMsg');
-            const loginOverlay = document.getElementById('loginOverlay');
-            const mainContent = document.getElementById('mainContent');
+        let currentTypeFilter = "all";
+        let currentSortBy = "none";
+        let typeOptions = [];
+        
+        // Кастомные select
+        function initCustomSelects() {
+            // Тип фильтра
+            const typeTrigger = document.getElementById('typeFilterTrigger');
+            const typeDropdown = document.getElementById('typeFilterDropdown');
+            const sortTrigger = document.getElementById('sortByTrigger');
+            const sortDropdown = document.getElementById('sortByDropdown');
             
-            if (passwordInput.value === CORRECT_PASSWORD) {
-                // Пароль верный
-                localStorage.setItem('merch_authenticated', 'true');
-                loginOverlay.style.display = 'none';
-                mainContent.style.display = 'block';
-                // Загружаем данные после входа
-                loadData(true, true);
-                startAutoRefresh();
-            } else {
-                errorMsg.style.display = 'block';
-                passwordInput.value = '';
-                passwordInput.focus();
-            }
-        }
-        
-        // Проверка при загрузке страницы
-        function checkExistingAuth() {
-            const loginOverlay = document.getElementById('loginOverlay');
-            const mainContent = document.getElementById('mainContent');
+            // Опции сортировки
+            const sortOptions = [
+                { value: "none", label: "Без сортировки" },
+                { value: "name", label: "По названию" },
+                { value: "stock", label: "По остатку: сначала мало" },
+                { value: "stockDesc", label: "По остатку: сначала много" },
+                { value: "priceAsc", label: "По цене: сначала дешёвое" },
+                { value: "priceDesc", label: "По цене: сначала дорогое" },
+                { value: "type", label: "По типу" }
+            ];
             
-            if (localStorage.getItem('merch_authenticated') === 'true') {
-                loginOverlay.style.display = 'none';
-                mainContent.style.display = 'block';
-                loadData(true, true);
-                startAutoRefresh();
-            } else {
-                loginOverlay.style.display = 'flex';
-                mainContent.style.display = 'none';
-                document.getElementById('passwordInput').focus();
+            function buildSortDropdown() {
+                sortDropdown.innerHTML = '';
+                sortOptions.forEach(opt => {
+                    const div = document.createElement('div');
+                    div.className = 'custom-select-option' + (currentSortBy === opt.value ? ' selected' : '');
+                    div.textContent = opt.label;
+                    div.dataset.value = opt.value;
+                    div.onclick = (e) => {
+                        e.stopPropagation();
+                        currentSortBy = opt.value;
+                        sortTrigger.textContent = opt.label;
+                        filterAndSort();
+                        closeAllDropdowns();
+                    };
+                    sortDropdown.appendChild(div);
+                });
             }
+            
+            function buildTypeDropdown() {
+                typeDropdown.innerHTML = '';
+                const allOption = { value: "all", label: "Все типы" };
+                const options = [allOption, ...typeOptions.map(t => ({ value: t, label: t }))];
+                options.forEach(opt => {
+                    const div = document.createElement('div');
+                    div.className = 'custom-select-option' + (currentTypeFilter === opt.value ? ' selected' : '');
+                    div.textContent = opt.label;
+                    div.dataset.value = opt.value;
+                    div.onclick = (e) => {
+                        e.stopPropagation();
+                        currentTypeFilter = opt.value;
+                        typeTrigger.textContent = opt.label;
+                        filterAndSort();
+                        closeAllDropdowns();
+                    };
+                    typeDropdown.appendChild(div);
+                });
+            }
+            
+            function closeAllDropdowns() {
+                typeDropdown.classList.remove('show');
+                sortDropdown.classList.remove('show');
+            }
+            
+            typeTrigger.onclick = (e) => {
+                e.stopPropagation();
+                sortDropdown.classList.remove('show');
+                typeDropdown.classList.toggle('show');
+            };
+            sortTrigger.onclick = (e) => {
+                e.stopPropagation();
+                typeDropdown.classList.remove('show');
+                sortDropdown.classList.toggle('show');
+            };
+            
+            document.addEventListener('click', () => closeAllDropdowns());
+            
+            buildSortDropdown();
+            buildTypeDropdown();
         }
         
-        // Прогресс-бар
-        function showProgressBar() {
-            const container = document.getElementById('progressContainer');
-            const bar = document.getElementById('progressBar');
-            if (container && bar) {
-                container.classList.add('active');
-                bar.style.width = '0%';
-                let width = 0;
-                const interval = setInterval(() => {
-                    if (width >= 90) {
-                        clearInterval(interval);
-                    } else {
-                        width += 10;
-                        bar.style.width = width + '%';
-                    }
-                }, 100);
-            }
-        }
-        
-        function hideProgressBar() {
-            const container = document.getElementById('progressContainer');
-            const bar = document.getElementById('progressBar');
-            if (container && bar) {
-                bar.style.width = '100%';
-                setTimeout(() => {
-                    container.classList.remove('active');
-                    bar.style.width = '0%';
-                }, 300);
-            }
-        }
-        
-        function getUniqueTypes() {
+        function updateTypeOptions() {
             const types = new Set();
             originalCardsData.forEach(card => {
                 if (card.type && card.type.trim()) {
                     types.add(card.type);
                 }
             });
-            return Array.from(types).sort();
-        }
-        
-        function updateTypeFilterOptions() {
-            const typeSelect = document.getElementById('typeFilter');
-            if (!typeSelect) return;
+            typeOptions = Array.from(types).sort();
             
-            const types = getUniqueTypes();
-            typeSelect.innerHTML = '<option value="all" style="font-weight: 600;">Все типы</option>';
-            types.forEach(type => {
-                typeSelect.innerHTML += `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`;
-            });
+            const typeDropdown = document.getElementById('typeFilterDropdown');
+            if (typeDropdown) {
+                typeDropdown.innerHTML = '';
+                const allOption = { value: "all", label: "Все типы" };
+                const options = [allOption, ...typeOptions.map(t => ({ value: t, label: t }))];
+                options.forEach(opt => {
+                    const div = document.createElement('div');
+                    div.className = 'custom-select-option' + (currentTypeFilter === opt.value ? ' selected' : '');
+                    div.textContent = opt.label;
+                    div.dataset.value = opt.value;
+                    div.onclick = (e) => {
+                        e.stopPropagation();
+                        currentTypeFilter = opt.value;
+                        document.getElementById('typeFilterTrigger').textContent = opt.label;
+                        filterAndSort();
+                        document.getElementById('typeFilterDropdown').classList.remove('show');
+                    };
+                    typeDropdown.appendChild(div);
+                });
+            }
         }
         
         function filterAndSort() {
-            const searchText = document.getElementById('searchInput')?.value.toLowerCase() || '';
-            const selectedType = document.getElementById('typeFilter')?.value || 'all';
-            const sortBy = document.getElementById('sortBy')?.value || 'none';
-            
             let filtered = [...originalCardsData];
+            const searchText = document.getElementById('searchInput')?.value.toLowerCase() || '';
             
             if (searchText) {
-                filtered = filtered.filter(card => 
-                    card.name.toLowerCase().includes(searchText)
-                );
+                filtered = filtered.filter(card => card.name.toLowerCase().includes(searchText));
             }
-            
-            if (selectedType !== 'all') {
-                filtered = filtered.filter(card => card.type === selectedType);
+            if (currentTypeFilter !== 'all') {
+                filtered = filtered.filter(card => card.type === currentTypeFilter);
             }
-            
-            if (sortBy !== 'none') {
-                switch(sortBy) {
-                    case 'name':
-                        filtered.sort((a, b) => a.name.localeCompare(b.name));
-                        break;
-                    case 'stock':
-                        filtered.sort((a, b) => (a.stock || 0) - (b.stock || 0));
-                        break;
-                    case 'stockDesc':
-                        filtered.sort((a, b) => (b.stock || 0) - (a.stock || 0));
-                        break;
-                    case 'priceAsc':
-                        filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
-                        break;
-                    case 'priceDesc':
-                        filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
-                        break;
-                    case 'type':
-                        filtered.sort((a, b) => (a.type || '').localeCompare(b.type || ''));
-                        break;
+            if (currentSortBy !== 'none') {
+                switch(currentSortBy) {
+                    case 'name': filtered.sort((a, b) => a.name.localeCompare(b.name)); break;
+                    case 'stock': filtered.sort((a, b) => (a.stock || 0) - (b.stock || 0)); break;
+                    case 'stockDesc': filtered.sort((a, b) => (b.stock || 0) - (a.stock || 0)); break;
+                    case 'priceAsc': filtered.sort((a, b) => (a.price || 0) - (b.price || 0)); break;
+                    case 'priceDesc': filtered.sort((a, b) => (b.price || 0) - (a.price || 0)); break;
+                    case 'type': filtered.sort((a, b) => (a.type || '').localeCompare(b.type || '')); break;
                 }
             }
-            
             currentFilteredData = filtered;
-            renderFilteredCards();
+            renderCards();
         }
         
-        function renderFilteredCards() {
+        function renderCards() {
             const container = document.getElementById('cards-container');
             if (!container) return;
             container.innerHTML = '';
-            
             if (currentFilteredData.length === 0) {
                 container.innerHTML = '<div class="loading">🔍 Ничего не найдено</div>';
                 return;
             }
-            
-            currentFilteredData.forEach((card, filteredIndex) => {
+            currentFilteredData.forEach((card) => {
                 const originalIndex = originalCardsData.findIndex(orig => orig.name === card.name && orig.type === card.type);
-                
                 const type = card.type || "";
                 const name = card.name || "Без названия";
                 const total = typeof card.total === 'number' ? card.total : 0;
                 const stock = typeof card.stock === 'number' ? card.stock : 0;
                 const price = typeof card.price === 'number' ? card.price : 0;
-                
                 const sold = total - stock;
                 const revenue = sold * price;
-                
                 const cardDiv = document.createElement('div');
                 cardDiv.className = 'card';
-                
                 cardDiv.innerHTML = `
                     <div class="info">
                         <div class="title-row">
@@ -704,10 +653,8 @@
                         <button class="plus" data-index="${originalIndex}" data-delta="+1">+1</button>
                     </div>
                 `;
-                
                 container.appendChild(cardDiv);
             });
-            
             document.querySelectorAll('.minus, .plus').forEach(btn => {
                 btn.removeEventListener('click', handleButtonClick);
                 btn.addEventListener('click', handleButtonClick);
@@ -724,89 +671,63 @@
         async function updateStock(index, delta) {
             const card = originalCardsData[index];
             if (!card) return;
-            
             const newStock = card.stock + delta;
-            if (newStock < 0) {
-                alert("Остаток не может быть меньше 0");
-                return;
-            }
-            if (newStock > card.total) {
-                alert("Остаток не может быть больше " + card.total);
-                return;
-            }
-            
+            if (newStock < 0) { alert("Остаток не может быть меньше 0"); return; }
+            if (newStock > card.total) { alert("Остаток не может быть больше " + card.total); return; }
             card.stock = newStock;
             filterAndSort();
-            
             try {
                 const response = await fetch(`${API_URL}?action=update&row=${index}&delta=${delta}&t=${Date.now()}`);
                 const result = await response.json();
-                if (!result.success) {
-                    await loadData(true);
-                    alert("Ошибка: " + (result.error || "неизвестная"));
-                }
-            } catch (error) {
-                console.error(error);
-                await loadData(true);
-                alert("Ошибка соединения");
-            }
+                if (!result.success) { await loadData(true); alert("Ошибка: " + (result.error || "неизвестная")); }
+            } catch (error) { console.error(error); await loadData(true); alert("Ошибка соединения"); }
         }
-
+        
         function showUpdateTime() {
             const now = new Date();
             const timeStr = now.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
             const timeElement = document.getElementById('update-time');
             if (timeElement) timeElement.innerText = `Обновлено: ${timeStr}`;
         }
-
+        
+        function showProgressBar() {
+            const container = document.getElementById('progressContainer');
+            const bar = document.getElementById('progressBar');
+            if (container && bar) { container.classList.add('active'); bar.style.width = '0%'; let width = 0; const interval = setInterval(() => { if (width >= 90) clearInterval(interval); else { width += 10; bar.style.width = width + '%'; } }, 100); }
+        }
+        function hideProgressBar() {
+            const container = document.getElementById('progressContainer');
+            const bar = document.getElementById('progressBar');
+            if (container && bar) { bar.style.width = '100%'; setTimeout(() => { container.classList.remove('active'); bar.style.width = '0%'; }, 300); }
+        }
+        
         async function loadData(showLoading = true, showProgress = false) {
             if (isLoading) return;
-            
             isLoading = true;
             if (showProgress) showProgressBar();
-            
-            if (showLoading) {
-                const container = document.getElementById('cards-container');
-                if (container) container.innerHTML = '<div class="loading">Загрузка...</div>';
-            }
-            
+            if (showLoading) { const container = document.getElementById('cards-container'); if (container) container.innerHTML = '<div class="loading">Загрузка...</div>'; }
             try {
                 const response = await fetch(API_URL + "?action=get&t=" + Date.now());
                 const data = await response.json();
-                
                 if (data && data.length > 0) {
                     originalCardsData = data;
-                    updateTypeFilterOptions();
+                    updateTypeOptions();
                     filterAndSort();
                     showUpdateTime();
-                } else if (showLoading) {
-                    const container = document.getElementById('cards-container');
-                    if (container) container.innerHTML = '<div class="loading">Нет данных. Проверьте таблицу и лист "Мерч".</div>';
-                }
-            } catch (error) {
-                console.error(error);
-                if (showLoading) {
-                    const container = document.getElementById('cards-container');
-                    if (container) container.innerHTML = '<div class="loading">Ошибка загрузки. Проверьте интернет и ссылку.</div>';
-                }
-            } finally {
-                isLoading = false;
-                if (showProgress) hideProgressBar();
-            }
+                } else if (showLoading) { const container = document.getElementById('cards-container'); if (container) container.innerHTML = '<div class="loading">Нет данных. Проверьте таблицу и лист "Мерч".</div>'; }
+            } catch (error) { console.error(error); if (showLoading) { const container = document.getElementById('cards-container'); if (container) container.innerHTML = '<div class="loading">Ошибка загрузки. Проверьте интернет и ссылку.</div>'; } }
+            finally { isLoading = false; if (showProgress) hideProgressBar(); }
         }
-
+        
         async function showHistory() {
             const modal = document.getElementById('historyModal');
             const historyList = document.getElementById('history-list');
             if (!modal || !historyList) return;
-            
             modal.style.display = 'block';
             historyList.innerHTML = '<div class="loading">Загрузка...</div>';
-            
             try {
                 const response = await fetch(API_URL + "?action=getHistory&t=" + Date.now());
                 const history = await response.json();
-                
                 if (history && history.length > 0) {
                     historyList.innerHTML = '';
                     history.forEach(item => {
@@ -814,85 +735,63 @@
                         const dateStr = date.toLocaleString('ru-RU');
                         const actionClass = item.action === 'Продажа' ? 'history-sale' : 'history-return';
                         const actionSymbol = item.action === 'Продажа' ? '−' : '+';
-                        
-                        const div = document.createElement('div');
-                        div.className = 'history-item';
-                        div.innerHTML = `
-                            <div class="history-date">${dateStr}</div>
-                            <div class="history-name">${escapeHtml(item.name)}</div>
-                            <div class="${actionClass}">${item.action} ${actionSymbol}1 → остаток: ${item.newStock} шт</div>
-                        `;
+                        const div = document.createElement('div'); div.className = 'history-item';
+                        div.innerHTML = `<div class="history-date">${dateStr}</div><div class="history-name">${escapeHtml(item.name)}</div><div class="${actionClass}">${item.action} ${actionSymbol}1 → остаток: ${item.newStock} шт</div>`;
                         historyList.appendChild(div);
                     });
-                } else {
-                    historyList.innerHTML = '<div class="loading">История пуста</div>';
-                }
-            } catch (error) {
-                console.error(error);
-                historyList.innerHTML = '<div class="loading">Ошибка загрузки истории</div>';
-            }
+                } else { historyList.innerHTML = '<div class="loading">История пуста</div>'; }
+            } catch (error) { console.error(error); historyList.innerHTML = '<div class="loading">Ошибка загрузки истории</div>'; }
         }
         
-        function closeHistory() {
-            const modal = document.getElementById('historyModal');
-            if (modal) modal.style.display = 'none';
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str).replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-
-        window.onclick = function(event) {
-            const modal = document.getElementById('historyModal');
-            if (event.target === modal) {
-                closeHistory();
-            }
+        function closeHistory() { const modal = document.getElementById('historyModal'); if (modal) modal.style.display = 'none'; }
+        function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
+        window.onclick = function(event) { const modal = document.getElementById('historyModal'); if (event.target === modal) closeHistory(); }
+        function startAutoRefresh() { if (autoRefreshInterval) clearInterval(autoRefreshInterval); autoRefreshInterval = setInterval(() => { loadData(false, true); }, 60000); }
+        
+        function checkPasswordAndLogin() {
+            const passwordInput = document.getElementById('passwordInput');
+            const errorMsg = document.getElementById('errorMsg');
+            const loginOverlay = document.getElementById('loginOverlay');
+            const mainContent = document.getElementById('mainContent');
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                localStorage.setItem('merch_authenticated', 'true');
+                loginOverlay.style.display = 'none';
+                mainContent.style.display = 'block';
+                initCustomSelects();
+                loadData(true, true);
+                startAutoRefresh();
+            } else { errorMsg.style.display = 'block'; passwordInput.value = ''; passwordInput.focus(); }
         }
         
-        function startAutoRefresh() {
-            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
-            autoRefreshInterval = setInterval(() => {
-                loadData(false, true);
-            }, 60000);
+        function checkExistingAuth() {
+            const loginOverlay = document.getElementById('loginOverlay');
+            const mainContent = document.getElementById('mainContent');
+            if (localStorage.getItem('merch_authenticated') === 'true') {
+                loginOverlay.style.display = 'none';
+                mainContent.style.display = 'block';
+                initCustomSelects();
+                loadData(true, true);
+                startAutoRefresh();
+            } else { loginOverlay.style.display = 'flex'; mainContent.style.display = 'none'; document.getElementById('passwordInput').focus(); }
         }
         
         document.addEventListener('DOMContentLoaded', () => {
             const loginBtn = document.getElementById('loginBtn');
-            if (loginBtn) {
-                loginBtn.addEventListener('click', checkPasswordAndLogin);
-            }
-            
+            if (loginBtn) loginBtn.addEventListener('click', checkPasswordAndLogin);
             const passwordInput = document.getElementById('passwordInput');
-            if (passwordInput) {
-                passwordInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') checkPasswordAndLogin();
-                });
-            }
-            
-            // Назначаем обработчики для фильтров (они появятся после входа)
+            if (passwordInput) passwordInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') checkPasswordAndLogin(); });
             const searchInput = document.getElementById('searchInput');
-            const typeFilter = document.getElementById('typeFilter');
-            const sortBy = document.getElementById('sortBy');
             const resetBtn = document.getElementById('resetFilters');
-            
             if (searchInput) searchInput.addEventListener('input', () => filterAndSort());
-            if (typeFilter) typeFilter.addEventListener('change', () => filterAndSort());
-            if (sortBy) sortBy.addEventListener('change', () => filterAndSort());
-            if (resetBtn) {
-                resetBtn.addEventListener('click', () => {
-                    if (searchInput) searchInput.value = '';
-                    if (typeFilter) typeFilter.value = 'all';
-                    if (sortBy) sortBy.value = 'none';
-                    filterAndSort();
-                });
-            }
-            
+            if (resetBtn) resetBtn.addEventListener('click', () => {
+                if (searchInput) searchInput.value = '';
+                currentTypeFilter = 'all';
+                currentSortBy = 'none';
+                document.getElementById('typeFilterTrigger').textContent = 'Все типы';
+                document.getElementById('sortByTrigger').textContent = 'Без сортировки';
+                updateTypeOptions();
+                filterAndSort();
+            });
             checkExistingAuth();
         });
     </script>
