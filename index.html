@@ -27,6 +27,70 @@
             font-size: 13px;
         }
         
+        /* Экран входа */
+        .login-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #f0f7f0;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(0px);
+        }
+        .login-card {
+            background: white;
+            border-radius: 24px;
+            padding: 32px 24px;
+            width: 280px;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+        .login-card h2 {
+            color: #2d6a2d;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        .login-card input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #dcedbc;
+            border-radius: 30px;
+            outline: none;
+            margin-bottom: 16px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+        .login-card button {
+            background: #2d6a2d;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: 500;
+            width: 100%;
+            cursor: pointer;
+        }
+        .login-card button:active {
+            transform: scale(0.96);
+        }
+        .error-msg {
+            color: #c0392b;
+            font-size: 12px;
+            margin-top: 12px;
+            display: none;
+        }
+        
+        /* Основной контент (изначально скрыт) */
+        .main-content {
+            display: none;
+        }
+        
         /* Прогресс-бар */
         .progress-container {
             width: 100%;
@@ -47,7 +111,6 @@
             display: block;
         }
         
-        /* Панель поиска */
         .search-panel {
             margin-bottom: 12px;
         }
@@ -69,7 +132,6 @@
             align-items: center;
         }
         
-        /* Кастомные выпадающие списки */
         .filter-select {
             flex: 1;
             padding: 8px 28px 8px 12px;
@@ -379,51 +441,63 @@
     </style>
 </head>
 <body>
-    <h1>Драконий учёт мерча 🐉</h1>
-    <div class="sub">Всё на благо ясгу фд! Всё на благо ясгу фд!</div>
-    
-    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
-        <button class="refresh-btn" onclick="loadData(true)">🔄 Обновить</button>
-        <button class="history-btn" onclick="showHistory()">📜 История</button>
-    </div>
-    
-    <!-- Прогресс-бар -->
-    <div id="progressContainer" class="progress-container">
-        <div id="progressBar" class="progress-bar"></div>
-    </div>
-    
-    <div class="search-panel">
-        <input type="text" id="searchInput" class="search-input" placeholder="Поиск по названию...">
-        
-        <div class="filter-row">
-            <select id="typeFilter" class="filter-select">
-                <option value="all" style="font-weight: 600;">Все типы</option>
-            </select>
-            
-            <select id="sortBy" class="filter-select">
-                <option value="none" style="font-weight: 600;">Без сортировки</option>
-                <option value="name">По названию</option>
-                <option value="stock">По остатку: сначала мало</option>
-                <option value="stockDesc">По остатку: сначала много</option>
-                <option value="priceAsc">По цене: сначала дешёвое</option>
-                <option value="priceDesc">По цене: сначала дорогое</option>
-                <option value="type">По типу</option>
-            </select>
-            
-            <button id="resetFilters" class="reset-btn" title="Сбросить фильтры">✕</button>
+    <!-- Экран входа -->
+    <div id="loginOverlay" class="login-overlay">
+        <div class="login-card">
+            <h2>Вход в пещеру дракона 🐉 </h2>
+            <input type="password" id="passwordInput" placeholder="Введите пароль" autofocus>
+            <button id="loginBtn">Войти</button>
+            <div id="errorMsg" class="error-msg">Неверный пароль</div>
         </div>
     </div>
-    
-    <div id="cards-container">
-        <div class="loading">Загрузка...</div>
-    </div>
-    <div class="last-update" id="update-time"></div>
-    <div class="auto-refresh-badge">
-        <span class="dot"></span>
-        <span>Автообновление каждую минуту</span>
-    </div>
-    <div class="footer">
-        −1 продажа | +1 возврат | <a href="https://docs.google.com/spreadsheets/d/123whYLgKX3E7a_Ov9X44sOe1TrlA5aifjtYanTsn7xk/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" style="color: #6b8c6b; text-decoration: underline;">Синхронизация с таблицей</a>
+
+    <!-- Основной контент (скрыт до входа) -->
+    <div id="mainContent" class="main-content">
+        <h1>Драконий учёт мерча 🐉</h1>
+        <div class="sub">Всё на благо ясгу фд! Всё на благо ясгу фд!</div>
+        
+        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+            <button class="refresh-btn" onclick="loadData(true)">🔄 Обновить</button>
+            <button class="history-btn" onclick="showHistory()">📜 История</button>
+        </div>
+        
+        <div id="progressContainer" class="progress-container">
+            <div id="progressBar" class="progress-bar"></div>
+        </div>
+        
+        <div class="search-panel">
+            <input type="text" id="searchInput" class="search-input" placeholder="Поиск по названию...">
+            
+            <div class="filter-row">
+                <select id="typeFilter" class="filter-select">
+                    <option value="all" style="font-weight: 600;">Все типы</option>
+                </select>
+                
+                <select id="sortBy" class="filter-select">
+                    <option value="none" style="font-weight: 600;">Без сортировки</option>
+                    <option value="name">По названию</option>
+                    <option value="stock">По остатку: сначала мало</option>
+                    <option value="stockDesc">По остатку: сначала много</option>
+                    <option value="priceAsc">По цене: сначала дешёвое</option>
+                    <option value="priceDesc">По цене: сначала дорогое</option>
+                    <option value="type">По типу</option>
+                </select>
+                
+                <button id="resetFilters" class="reset-btn" title="Сбросить фильтры">✕</button>
+            </div>
+        </div>
+        
+        <div id="cards-container">
+            <div class="loading">Загрузка...</div>
+        </div>
+        <div class="last-update" id="update-time"></div>
+        <div class="auto-refresh-badge">
+            <span class="dot"></span>
+            <span>Автообновление каждую минуту</span>
+        </div>
+        <div class="footer">
+            −1 продажа | +1 возврат | <a href="https://docs.google.com/spreadsheets/d/123whYLgKX3E7a_Ov9X44sOe1TrlA5aifjtYanTsn7xk/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" style="color: #6b8c6b; text-decoration: underline;">Синхронизация с таблицей</a>
+        </div>
     </div>
 
     <div id="historyModal" class="modal">
@@ -440,6 +514,7 @@
 
     <script>
         const API_URL = "https://script.google.com/macros/s/AKfycbz_oc2Smer_9xHNJWCC8be-dER63JxXO1WighSsEVVE9o15J3Lqvz45DLe6WENQvuGV/exec";
+        const CORRECT_PASSWORD = "ясгу";
         
         let cardsData = [];
         let isLoading = false;
@@ -448,6 +523,45 @@
         let currentFilteredData = [];
         
         let autoRefreshInterval = null;
+        
+        // === Управление входом ===
+        function checkPasswordAndLogin() {
+            const passwordInput = document.getElementById('passwordInput');
+            const errorMsg = document.getElementById('errorMsg');
+            const loginOverlay = document.getElementById('loginOverlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (passwordInput.value === CORRECT_PASSWORD) {
+                // Пароль верный
+                localStorage.setItem('merch_authenticated', 'true');
+                loginOverlay.style.display = 'none';
+                mainContent.style.display = 'block';
+                // Загружаем данные после входа
+                loadData(true, true);
+                startAutoRefresh();
+            } else {
+                errorMsg.style.display = 'block';
+                passwordInput.value = '';
+                passwordInput.focus();
+            }
+        }
+        
+        // Проверка при загрузке страницы
+        function checkExistingAuth() {
+            const loginOverlay = document.getElementById('loginOverlay');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (localStorage.getItem('merch_authenticated') === 'true') {
+                loginOverlay.style.display = 'none';
+                mainContent.style.display = 'block';
+                loadData(true, true);
+                startAutoRefresh();
+            } else {
+                loginOverlay.style.display = 'flex';
+                mainContent.style.display = 'none';
+                document.getElementById('passwordInput').focus();
+            }
+        }
         
         // Прогресс-бар
         function showProgressBar() {
@@ -737,17 +851,27 @@
             }
         }
         
-        // Запуск автообновления
         function startAutoRefresh() {
             if (autoRefreshInterval) clearInterval(autoRefreshInterval);
             autoRefreshInterval = setInterval(() => {
-                // Фоновое обновление без показа загрузки, но с прогресс-баром
                 loadData(false, true);
-            }, 60000); // 60 000 мс = 1 минута
+            }, 60000);
         }
         
-        // Назначаем обработчики событий после загрузки DOM
         document.addEventListener('DOMContentLoaded', () => {
+            const loginBtn = document.getElementById('loginBtn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', checkPasswordAndLogin);
+            }
+            
+            const passwordInput = document.getElementById('passwordInput');
+            if (passwordInput) {
+                passwordInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') checkPasswordAndLogin();
+                });
+            }
+            
+            // Назначаем обработчики для фильтров (они появятся после входа)
             const searchInput = document.getElementById('searchInput');
             const typeFilter = document.getElementById('typeFilter');
             const sortBy = document.getElementById('sortBy');
@@ -765,10 +889,8 @@
                 });
             }
             
-            startAutoRefresh();
+            checkExistingAuth();
         });
-
-        loadData(true, true);
     </script>
 </body>
 </html>
