@@ -702,7 +702,6 @@
             if (container && bar) { bar.style.width = '100%'; setTimeout(() => { container.classList.remove('active'); bar.style.width = '0%'; }, 300); }
         }
         
-        // Изменённая функция loadData
         async function loadData(showLoading = true, showProgress = false) {
             if (isLoading) return;
             isLoading = true;
@@ -711,15 +710,19 @@
             const isAutoRefresh = showProgress && !showLoading;
             
             if (!isAutoRefresh) {
-                // Скрываем автообновление только при ручной загрузке с прогресс-баром
+                // Скрываем автообновление при ручной загрузке
                 const autoRefreshBadge = document.querySelector('.auto-refresh-badge');
-                if (showProgress && autoRefreshBadge) {
+                if (autoRefreshBadge) {
                     autoRefreshBadge.style.opacity = '0';
                     autoRefreshBadge.style.visibility = 'hidden';
                 }
                 
-                if (showProgress) showProgressBar();
+                // Показываем прогресс-бар (если запрошено)
+                if (showProgress) {
+                    showProgressBar();
+                }
                 
+                // Показываем текст "Загрузка..." (если запрошено)
                 if (showLoading) {
                     const container = document.getElementById('cards-container');
                     if (container) container.innerHTML = '<div class="loading">Загрузка...</div>';
@@ -749,10 +752,12 @@
                 isLoading = false;
                 
                 if (!isAutoRefresh) {
-                    if (showProgress) hideProgressBar();
+                    if (showProgress) {
+                        hideProgressBar();
+                    }
                     
                     const autoRefreshBadge = document.querySelector('.auto-refresh-badge');
-                    if (showProgress && autoRefreshBadge) {
+                    if (autoRefreshBadge) {
                         autoRefreshBadge.style.opacity = '';
                         autoRefreshBadge.style.visibility = '';
                     }
