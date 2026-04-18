@@ -309,15 +309,14 @@
     </style>
 </head>
 <body>
-    <h1>📦 Драконий учёт мерча</h1>
-    <div class="sub">Всё на благо ясгу фд!</div>
+    <h1>Драконий учёт мерча 🐉</h1>
+    <div class="sub">Всё на благо ясгу фд! Всё на благо ясгу фд!</div>
     
     <div style="display: flex; gap: 10px; margin-bottom: 12px;">
         <button class="refresh-btn" onclick="loadData(true)">🔄 Обновить</button>
         <button class="history-btn" onclick="showHistory()">📜 История</button>
     </div>
     
-    <!-- Панель поиска и фильтров -->
     <div class="search-panel">
         <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по названию...">
         
@@ -327,11 +326,11 @@
             </select>
             
             <select id="sortBy" class="filter-select">
-                <option value="name">📝 По названию</option>
-                <option value="stock">📦 По остатку (сначала мало)</option>
-                <option value="stockDesc">📦 По остатку (сначала много)</option>
-                <option value="price">💰 По цене</option>
-                <option value="type">🏷️ По типу</option>
+                <option value="name">По названию</option>
+                <option value="stock">По остатку (сначала мало)</option>
+                <option value="stockDesc">По остатку (сначала много)</option>
+                <option value="price">По цене</option>
+                <option value="type">По типу</option>
             </select>
             
             <button id="resetFilters" class="reset-btn" title="Сбросить фильтры">✕</button>
@@ -364,7 +363,6 @@
         let cardsData = [];
         let isLoading = false;
         
-        // ========== ПОИСК, СОРТИРОВКА И ФИЛЬТР ==========
         let originalCardsData = [];
         let currentFilteredData = [];
         
@@ -385,7 +383,7 @@
             const types = getUniqueTypes();
             typeSelect.innerHTML = '<option value="all">📋 Все типы</option>';
             types.forEach(type => {
-                typeSelect.innerHTML += `<option value="${escapeHtml(type)}">🏷️ ${escapeHtml(type)}</option>`;
+                typeSelect.innerHTML += `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`;
             });
         }
         
