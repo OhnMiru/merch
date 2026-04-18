@@ -695,7 +695,6 @@
                         selectedTypes.delete(type);
                     }
                     updateTypeFilterTrigger();
-                    // НЕ вызываем filterAndSort() здесь — список не закрывается
                 };
                 
                 const label = document.createElement('label');
@@ -707,23 +706,29 @@
                 dropdown.appendChild(div);
             });
             
-            // Контейнер для кнопок в одной строке (уменьшенный)
             const buttonsRow = document.createElement('div');
             buttonsRow.style.display = 'flex';
             buttonsRow.style.gap = '10px';
-            buttonsRow.style.padding = '6px 12px';
+            buttonsRow.style.padding = '8px 12px';
             buttonsRow.style.borderTop = '1px solid var(--border-color)';
             buttonsRow.style.marginTop = '4px';
             
-            // Кнопка "Сбросить" — уменьшенная
+            const isMobile = window.innerWidth <= 500;
+            
             const resetBtn = document.createElement('button');
-            resetBtn.textContent = 'Сбросить';
+            if (isMobile) {
+                resetBtn.textContent = '✕';
+                resetBtn.style.fontSize = '16px';
+                resetBtn.style.fontWeight = 'bold';
+            } else {
+                resetBtn.textContent = 'Сбросить';
+                resetBtn.style.fontSize = '12px';
+            }
             resetBtn.style.flex = '1';
             resetBtn.style.background = 'transparent';
             resetBtn.style.border = '1px solid var(--border-color)';
-            resetBtn.style.borderRadius = '16px';
-            resetBtn.style.padding = '3px 0';
-            resetBtn.style.fontSize = '11px';
+            resetBtn.style.borderRadius = '20px';
+            resetBtn.style.padding = '6px 0';
             resetBtn.style.cursor = 'pointer';
             resetBtn.style.color = 'var(--text-secondary)';
             resetBtn.onclick = (e) => {
@@ -733,23 +738,28 @@
                     cb.checked = false;
                 });
                 updateTypeFilterTrigger();
-                filterAndSort();  // При сбросе применяем сразу
+                filterAndSort();
             };
             
-            // Кнопка "Применить" — уменьшенная
             const applyBtn = document.createElement('button');
-            applyBtn.textContent = 'Применить';
+            if (isMobile) {
+                applyBtn.textContent = '✓';
+                applyBtn.style.fontSize = '16px';
+                applyBtn.style.fontWeight = 'bold';
+            } else {
+                applyBtn.textContent = 'Применить';
+                applyBtn.style.fontSize = '12px';
+            }
             applyBtn.style.flex = '1';
             applyBtn.style.background = 'var(--btn-bg)';
             applyBtn.style.border = 'none';
-            applyBtn.style.borderRadius = '16px';
-            applyBtn.style.padding = '3px 0';
-            applyBtn.style.fontSize = '11px';
+            applyBtn.style.borderRadius = '20px';
+            applyBtn.style.padding = '6px 0';
             applyBtn.style.cursor = 'pointer';
             applyBtn.style.color = 'white';
             applyBtn.onclick = (e) => {
                 e.stopPropagation();
-                filterAndSort();  // Применяем фильтр
+                filterAndSort();
                 document.getElementById('typeFilterDropdown').classList.remove('show');
             };
             
