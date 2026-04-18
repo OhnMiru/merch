@@ -48,16 +48,39 @@
             flex-wrap: wrap;
             align-items: center;
         }
+        
+        /* Кастомные выпадающие списки */
         .filter-select {
             flex: 1;
-            padding: 8px 12px;
+            padding: 8px 28px 8px 12px;
             font-size: 13px;
-            border: 1px solid #dcedbc;
+            font-weight: normal;
+            border: 1px solid #c8e0c8;
             border-radius: 30px;
             background: white;
             outline: none;
             min-width: 0;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234a7c4a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>");
+            background-repeat: no-repeat;
+            background-position: right 12px center;
+            background-size: 14px;
+            cursor: pointer;
         }
+        .filter-select option {
+            font-weight: normal;
+            padding: 8px;
+        }
+        .filter-select option:checked {
+            font-weight: 600;
+            background: #e8f0e8;
+        }
+        /* Жирный шрифт для первого пункта в каждом списке */
+        .filter-select option:first-child {
+            font-weight: 600;
+        }
+        
         .reset-btn {
             background: #e8f0e8;
             color: #2d6a2d;
@@ -305,12 +328,17 @@
                 font-size: 10px;
                 padding: 1px 6px;
             }
+            .filter-select {
+                padding: 8px 24px 8px 10px;
+                font-size: 12px;
+                background-position: right 10px center;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Драконий учёт мерча 🐉</h1>
-    <div class="sub">Всё на благо ясгу фд! Всё на благо ясгу фд!</div>
+    <h1>🐉 Драконий учёт мерча</h1>
+    <div class="sub">Всё на благо ясгу фд!</div>
     
     <div style="display: flex; gap: 10px; margin-bottom: 12px;">
         <button class="refresh-btn" onclick="loadData(true)">🔄 Обновить</button>
@@ -322,10 +350,11 @@
         
         <div class="filter-row">
             <select id="typeFilter" class="filter-select">
-                <option value="all">📋 Все типы</option>
+                <option value="all" style="font-weight: 600;">Все типы</option>
             </select>
             
             <select id="sortBy" class="filter-select">
+                <option value="none" style="font-weight: 600;">Без сортировки</option>
                 <option value="name">По названию</option>
                 <option value="stock">По остатку (сначала мало)</option>
                 <option value="stockDesc">По остатку (сначала много)</option>
@@ -381,7 +410,7 @@
             if (!typeSelect) return;
             
             const types = getUniqueTypes();
-            typeSelect.innerHTML = '<option value="all">📋 Все типы</option>';
+            typeSelect.innerHTML = '<option value="all" style="font-weight: 600;">Все типы</option>';
             types.forEach(type => {
                 typeSelect.innerHTML += `<option value="${escapeHtml(type)}">${escapeHtml(type)}</option>`;
             });
@@ -390,7 +419,7 @@
         function filterAndSort() {
             const searchText = document.getElementById('searchInput')?.value.toLowerCase() || '';
             const selectedType = document.getElementById('typeFilter')?.value || 'all';
-            const sortBy = document.getElementById('sortBy')?.value || 'name';
+            const sortBy = document.getElementById('sortBy')?.value || 'none';
             
             let filtered = [...originalCardsData];
             
@@ -404,24 +433,25 @@
                 filtered = filtered.filter(card => card.type === selectedType);
             }
             
-            switch(sortBy) {
-                case 'name':
-                    filtered.sort((a, b) => a.name.localeCompare(b.name));
-                    break;
-                case 'stock':
-                    filtered.sort((a, b) => (a.stock || 0) - (b.stock || 0));
-                    break;
-                case 'stockDesc':
-                    filtered.sort((a, b) => (b.stock || 0) - (a.stock || 0));
-                    break;
-                case 'price':
-                    filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
-                    break;
-                case 'type':
-                    filtered.sort((a, b) => (a.type || '').localeCompare(b.type || ''));
-                    break;
-                default:
-                    filtered.sort((a, b) => a.name.localeCompare(b.name));
+            // Сортировка (только если выбран не вариант "Без сортировки")
+            if (sortBy !== 'none') {
+                switch(sortBy) {
+                    case 'name':
+                        filtered.sort((a, b) => a.name.localeCompare(b.name));
+                        break;
+                    case 'stock':
+                        filtered.sort((a, b) => (a.stock || 0) - (b.stock || 0));
+                        break;
+                    case 'stockDesc':
+                        filtered.sort((a, b) => (b.stock || 0) - (a.stock || 0));
+                        break;
+                    case 'price':
+                        filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+                        break;
+                    case 'type':
+                        filtered.sort((a, b) => (a.type || '').localeCompare(b.type || ''));
+                        break;
+                }
             }
             
             currentFilteredData = filtered;
@@ -631,7 +661,7 @@
                 resetBtn.addEventListener('click', () => {
                     if (searchInput) searchInput.value = '';
                     if (typeFilter) typeFilter.value = 'all';
-                    if (sortBy) sortBy.value = 'name';
+                    if (sortBy) sortBy.value = 'none';
                     filterAndSort();
                 });
             }
