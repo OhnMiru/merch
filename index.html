@@ -695,6 +695,7 @@
                         selectedTypes.delete(type);
                     }
                     updateTypeFilterTrigger();
+                    // НЕ вызываем filterAndSort() здесь — список не закрывается
                 };
                 
                 const label = document.createElement('label');
@@ -706,22 +707,23 @@
                 dropdown.appendChild(div);
             });
             
-            // Контейнер для кнопок в одной строке
+            // Контейнер для кнопок в одной строке (уменьшенный)
             const buttonsRow = document.createElement('div');
             buttonsRow.style.display = 'flex';
             buttonsRow.style.gap = '10px';
-            buttonsRow.style.padding = '10px 12px';
+            buttonsRow.style.padding = '6px 12px';
             buttonsRow.style.borderTop = '1px solid var(--border-color)';
             buttonsRow.style.marginTop = '4px';
             
+            // Кнопка "Сбросить" — уменьшенная
             const resetBtn = document.createElement('button');
             resetBtn.textContent = 'Сбросить';
             resetBtn.style.flex = '1';
             resetBtn.style.background = 'transparent';
             resetBtn.style.border = '1px solid var(--border-color)';
-            resetBtn.style.borderRadius = '20px';
-            resetBtn.style.padding = '6px 0';
-            resetBtn.style.fontSize = '12px';
+            resetBtn.style.borderRadius = '16px';
+            resetBtn.style.padding = '3px 0';
+            resetBtn.style.fontSize = '11px';
             resetBtn.style.cursor = 'pointer';
             resetBtn.style.color = 'var(--text-secondary)';
             resetBtn.onclick = (e) => {
@@ -731,22 +733,23 @@
                     cb.checked = false;
                 });
                 updateTypeFilterTrigger();
-                filterAndSort();
+                filterAndSort();  // При сбросе применяем сразу
             };
             
+            // Кнопка "Применить" — уменьшенная
             const applyBtn = document.createElement('button');
-            applyBtn.textContent = 'Применить ✓';
+            applyBtn.textContent = 'Применить';
             applyBtn.style.flex = '1';
             applyBtn.style.background = 'var(--btn-bg)';
             applyBtn.style.border = 'none';
-            applyBtn.style.borderRadius = '20px';
-            applyBtn.style.padding = '6px 0';
-            applyBtn.style.fontSize = '12px';
+            applyBtn.style.borderRadius = '16px';
+            applyBtn.style.padding = '3px 0';
+            applyBtn.style.fontSize = '11px';
             applyBtn.style.cursor = 'pointer';
             applyBtn.style.color = 'white';
             applyBtn.onclick = (e) => {
                 e.stopPropagation();
-                filterAndSort();
+                filterAndSort();  // Применяем фильтр
                 document.getElementById('typeFilterDropdown').classList.remove('show');
             };
             
