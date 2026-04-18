@@ -707,19 +707,23 @@
             if (isLoading) return;
             isLoading = true;
             
-            // Скрываем автообновление при загрузке с прогресс-баром
-            const autoRefreshBadge = document.querySelector('.auto-refresh-badge');
-            if (showProgress && autoRefreshBadge) {
-                autoRefreshBadge.style.opacity = '0';
-                autoRefreshBadge.style.visibility = 'hidden';
-            }
+            // При автообновлении (showProgress=true и showLoading=false) — ничего не показываем
+            const isAutoRefresh = showProgress && !showLoading;
             
-            if (showProgress) showProgressBar();
-            
-            // Только если showLoading = true, показываем текст "Загрузка..."
-            if (showLoading) {
-                const container = document.getElementById('cards-container');
-                if (container) container.innerHTML = '<div class="loading">Загрузка...</div>';
+            if (!isAutoRefresh) {
+                // Скрываем автообновление только при ручной загрузке с прогресс-баром
+                const autoRefreshBadge = document.querySelector('.auto-refresh-badge');
+                if (showProgress && autoRefreshBadge) {
+                    autoRefreshBadge.style.opacity = '0';
+                    autoRefreshBadge.style.visibility = 'hidden';
+                }
+                
+                if (showProgress) showProgressBar();
+                
+                if (showLoading) {
+                    const container = document.getElementById('cards-container');
+                    if (container) container.innerHTML = '<div class="loading">Загрузка...</div>';
+                }
             }
             
             try {
@@ -731,24 +735,27 @@
                     updateTypeOptions();
                     filterAndSort();
                     showUpdateTime();
-                } else if (showLoading) {
+                } else if (showLoading && !isAutoRefresh) {
                     const container = document.getElementById('cards-container');
                     if (container) container.innerHTML = '<div class="loading">Нет данных. Проверьте таблицу и лист "Мерч".</div>';
                 }
             } catch (error) {
                 console.error(error);
-                if (showLoading) {
+                if (showLoading && !isAutoRefresh) {
                     const container = document.getElementById('cards-container');
                     if (container) container.innerHTML = '<div class="loading">Ошибка загрузки. Проверьте интернет и ссылку.</div>';
                 }
             } finally {
                 isLoading = false;
-                if (showProgress) hideProgressBar();
                 
-                // Возвращаем автообновление после загрузки
-                if (showProgress && autoRefreshBadge) {
-                    autoRefreshBadge.style.opacity = '';
-                    autoRefreshBadge.style.visibility = '';
+                if (!isAutoRefresh) {
+                    if (showProgress) hideProgressBar();
+                    
+                    const autoRefreshBadge = document.querySelector('.auto-refresh-badge');
+                    if (showProgress && autoRefreshBadge) {
+                        autoRefreshBadge.style.opacity = '';
+                        autoRefreshBadge.style.visibility = '';
+                    }
                 }
             }
         }
