@@ -27,6 +27,26 @@
             font-size: 13px;
         }
         
+        /* Прогресс-бар */
+        .progress-container {
+            width: 100%;
+            background: #e0e0e0;
+            border-radius: 20px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            display: none;
+        }
+        .progress-bar {
+            width: 0%;
+            height: 4px;
+            background: #2d6a2d;
+            border-radius: 20px;
+            transition: width 0.3s ease;
+        }
+        .progress-container.active {
+            display: block;
+        }
+        
         /* Панель поиска */
         .search-panel {
             margin-bottom: 12px;
@@ -76,7 +96,6 @@
             font-weight: 600;
             background: #e8f0e8;
         }
-        /* Жирный шрифт для первого пункта в каждом списке */
         .filter-select option:first-child {
             font-weight: 600;
         }
@@ -234,6 +253,29 @@
             text-align: center;
             margin-top: 8px;
         }
+        .auto-refresh-badge {
+            font-size: 9px;
+            color: #8aa88a;
+            text-align: center;
+            margin-top: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+        .auto-refresh-badge .dot {
+            width: 6px;
+            height: 6px;
+            background-color: #2d6a2d;
+            border-radius: 50%;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.3; transform: scale(0.8); }
+            50% { opacity: 1; transform: scale(1.2); }
+            100% { opacity: 0.3; transform: scale(0.8); }
+        }
         
         .modal {
             display: none;
@@ -345,6 +387,11 @@
         <button class="history-btn" onclick="showHistory()">📜 История</button>
     </div>
     
+    <!-- Прогресс-бар -->
+    <div id="progressContainer" class="progress-container">
+        <div id="progressBar" class="progress-bar"></div>
+    </div>
+    
     <div class="search-panel">
         <input type="text" id="searchInput" class="search-input" placeholder="Поиск по названию...">
         
@@ -356,11 +403,11 @@
             <select id="sortBy" class="filter-select">
                 <option value="none" style="font-weight: 600;">Без сортировки</option>
                 <option value="name">По названию</option>
-                <option value="type">По типу</option>
                 <option value="stock">По остатку: сначала мало</option>
                 <option value="stockDesc">По остатку: сначала много</option>
                 <option value="priceAsc">По цене: сначала дешёвое</option>
                 <option value="priceDesc">По цене: сначала дорогое</option>
+                <option value="type">По типу</option>
             </select>
             
             <button id="resetFilters" class="reset-btn" title="Сбросить фильтры">✕</button>
@@ -371,6 +418,10 @@
         <div class="loading">Загрузка...</div>
     </div>
     <div class="last-update" id="update-time"></div>
+    <div class="auto-refresh-badge">
+        <span class="dot"></span>
+        <span>Автообновление каждую минуту</span>
+    </div>
     <div class="footer">
         −1 продажа | +1 возврат | <a href="https://docs.google.com/spreadsheets/d/123whYLgKX3E7a_Ov9X44sOe1TrlA5aifjtYanTsn7xk/edit?gid=0#gid=0" target="_blank" rel="noopener noreferrer" style="color: #6b8c6b; text-decoration: underline;">Синхронизация с таблицей</a>
     </div>
@@ -395,6 +446,39 @@
         
         let originalCardsData = [];
         let currentFilteredData = [];
+        
+        let autoRefreshInterval = null;
+        
+        // Прогресс-бар
+        function showProgressBar() {
+            const container = document.getElementById('progressContainer');
+            const bar = document.getElementById('progressBar');
+            if (container && bar) {
+                container.classList.add('active');
+                bar.style.width = '0%';
+                let width = 0;
+                const interval = setInterval(() => {
+                    if (width >= 90) {
+                        clearInterval(interval);
+                    } else {
+                        width += 10;
+                        bar.style.width = width + '%';
+                    }
+                }, 100);
+            }
+        }
+        
+        function hideProgressBar() {
+            const container = document.getElementById('progressContainer');
+            const bar = document.getElementById('progressBar');
+            if (container && bar) {
+                bar.style.width = '100%';
+                setTimeout(() => {
+                    container.classList.remove('active');
+                    bar.style.width = '0%';
+                }, 300);
+            }
+        }
         
         function getUniqueTypes() {
             const types = new Set();
@@ -434,7 +518,6 @@
                 filtered = filtered.filter(card => card.type === selectedType);
             }
             
-            // Сортировка (только если выбран не вариант "Без сортировки")
             if (sortBy !== 'none') {
                 switch(sortBy) {
                     case 'name':
@@ -456,7 +539,8 @@
                         filtered.sort((a, b) => (a.type || '').localeCompare(b.type || ''));
                         break;
                 }
-                
+            }
+            
             currentFilteredData = filtered;
             renderFilteredCards();
         }
@@ -557,10 +641,12 @@
             if (timeElement) timeElement.innerText = `Обновлено: ${timeStr}`;
         }
 
-        async function loadData(showLoading = true) {
+        async function loadData(showLoading = true, showProgress = false) {
             if (isLoading) return;
             
             isLoading = true;
+            if (showProgress) showProgressBar();
+            
             if (showLoading) {
                 const container = document.getElementById('cards-container');
                 if (container) container.innerHTML = '<div class="loading">Загрузка...</div>';
@@ -587,6 +673,7 @@
                 }
             } finally {
                 isLoading = false;
+                if (showProgress) hideProgressBar();
             }
         }
 
@@ -650,6 +737,15 @@
             }
         }
         
+        // Запуск автообновления
+        function startAutoRefresh() {
+            if (autoRefreshInterval) clearInterval(autoRefreshInterval);
+            autoRefreshInterval = setInterval(() => {
+                // Фоновое обновление без показа загрузки, но с прогресс-баром
+                loadData(false, true);
+            }, 60000); // 60 000 мс = 1 минута
+        }
+        
         // Назначаем обработчики событий после загрузки DOM
         document.addEventListener('DOMContentLoaded', () => {
             const searchInput = document.getElementById('searchInput');
@@ -668,9 +764,11 @@
                     filterAndSort();
                 });
             }
+            
+            startAutoRefresh();
         });
 
-        loadData(true);
+        loadData(true, true);
     </script>
 </body>
 </html>
