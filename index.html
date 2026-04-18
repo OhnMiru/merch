@@ -82,8 +82,8 @@
         }
         
         .reset-btn {
-            background: #e8f0e8;
-            color: #2d6a2d;
+            background: #d4e0d4;
+            color: #1a4d1a;
             border: none;
             border-radius: 30px;
             width: 36px;
@@ -337,8 +337,8 @@
     </style>
 </head>
 <body>
-    <h1>🐉 Драконий учёт мерча</h1>
-    <div class="sub">Всё на благо ясгу фд!</div>
+    <h1>Драконий учёт мерча 🐉</h1>
+    <div class="sub">Всё на благо ясгу фд! Всё на благо ясгу фд!</div>
     
     <div style="display: flex; gap: 10px; margin-bottom: 12px;">
         <button class="refresh-btn" onclick="loadData(true)">🔄 Обновить</button>
@@ -346,7 +346,7 @@
     </div>
     
     <div class="search-panel">
-        <input type="text" id="searchInput" class="search-input" placeholder="🔍 Поиск по названию...">
+        <input type="text" id="searchInput" class="search-input" placeholder="Поиск по названию...">
         
         <div class="filter-row">
             <select id="typeFilter" class="filter-select">
@@ -356,10 +356,11 @@
             <select id="sortBy" class="filter-select">
                 <option value="none" style="font-weight: 600;">Без сортировки</option>
                 <option value="name">По названию</option>
-                <option value="stock">По остатку (сначала мало)</option>
-                <option value="stockDesc">По остатку (сначала много)</option>
-                <option value="price">По цене</option>
                 <option value="type">По типу</option>
+                <option value="stock">По остатку: сначала мало</option>
+                <option value="stockDesc">По остатку: сначала много</option>
+                <option value="priceAsc">По цене: сначала дешёвое</option>
+                <option value="priceDesc">По цене: сначала дорогое</option>
             </select>
             
             <button id="resetFilters" class="reset-btn" title="Сбросить фильтры">✕</button>
@@ -445,15 +446,17 @@
                     case 'stockDesc':
                         filtered.sort((a, b) => (b.stock || 0) - (a.stock || 0));
                         break;
-                    case 'price':
+                    case 'priceAsc':
                         filtered.sort((a, b) => (a.price || 0) - (b.price || 0));
+                        break;
+                    case 'priceDesc':
+                        filtered.sort((a, b) => (b.price || 0) - (a.price || 0));
                         break;
                     case 'type':
                         filtered.sort((a, b) => (a.type || '').localeCompare(b.type || ''));
                         break;
                 }
-            }
-            
+                
             currentFilteredData = filtered;
             renderFilteredCards();
         }
@@ -491,8 +494,8 @@
                         </div>
                         <div class="stock">Остаток: ${stock} шт</div>
                         <div class="total">Всего: ${total} шт</div>
-                        <div class="price">💰 ${price} ₽</div>
-                        <div class="revenue">📊 ${revenue} ₽</div>
+                        <div class="price">💰 Цена: ${price} ₽</div>
+                        <div class="revenue">📊 Выручка: ${revenue} ₽</div>
                     </div>
                     <div class="buttons">
                         <button class="minus" data-index="${originalIndex}" data-delta="-1">−1</button>
