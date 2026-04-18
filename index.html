@@ -244,8 +244,8 @@
     </style>
 </head>
 <body>
-    <h1>📦 Мерч</h1>
-    <div class="sub">Продажи на маркете</div>
+    <h1>📦 Драконий учёт мерча</h1>
+    <div class="sub">Всё на благо ясгу фд!</div>
     
     <div style="display: flex; gap: 10px; margin-bottom: 16px;">
         <button class="refresh-btn" onclick="loadData(true)">🔄 Обновить</button>
@@ -257,7 +257,7 @@
     </div>
     <div class="last-update" id="update-time"></div>
     <div class="footer">
-        −1 продажа | +1 возврат | Данные общие для всех
+        −1 продажа | +1 возврат | Активная синхронизация
     </div>
 
     <div id="historyModal" class="modal">
@@ -343,7 +343,7 @@
                         </div>
                         <div class="stock">Остаток: ${stock} шт</div>
                         <div class="total">Всего: ${total} шт</div>
-                        <div class="price">💰 ${price} ₽</div>
+                        <div class="price">💰 Цена: ${price} ₽</div>
                         <div class="revenue">📊 Выручка: ${revenue} ₽</div>
                     </div>
                     <div class="buttons">
