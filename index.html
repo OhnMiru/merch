@@ -688,7 +688,7 @@
                         selectedTypes.delete(type);
                     }
                     updateTypeFilterTrigger();
-                    filterAndSort();
+                    filterAndSort();  // Фильтруем сразу, без закрытия
                 };
                 
                 const label = document.createElement('label');
@@ -700,12 +700,11 @@
                 dropdown.appendChild(div);
             });
             
-            // Добавляем кнопку "Сбросить выбор" в конце
+            // Кнопка "Сбросить выбор" — компактная, без обводки
             const resetDiv = document.createElement('div');
-            resetDiv.className = 'filter-option';
+            resetDiv.style.padding = '8px 12px';
             resetDiv.style.borderTop = '1px solid var(--border-color)';
             resetDiv.style.marginTop = '4px';
-            resetDiv.style.justifyContent = 'center';
             
             const resetBtn = document.createElement('button');
             resetBtn.textContent = 'Сбросить выбор';
@@ -714,12 +713,13 @@
             resetBtn.style.color = 'var(--stock-color)';
             resetBtn.style.fontSize = '12px';
             resetBtn.style.cursor = 'pointer';
-            resetBtn.style.padding = '8px';
-            resetBtn.style.width = '100%';
+            resetBtn.style.padding = '4px 0';
+            resetBtn.style.width = 'auto';
+            resetBtn.style.display = 'inline-block';
+            resetBtn.style.textDecoration = 'underline';
             resetBtn.onclick = (e) => {
                 e.stopPropagation();
                 selectedTypes.clear();
-                // Снимаем все чекбоксы
                 document.querySelectorAll('#typeFilterDropdown input[type="checkbox"]').forEach(cb => {
                     cb.checked = false;
                 });
@@ -727,7 +727,31 @@
                 filterAndSort();
             };
             resetDiv.appendChild(resetBtn);
+            
+            // Кнопка "Применить" для закрытия списка
+            const applyDiv = document.createElement('div');
+            applyDiv.style.padding = '8px 12px';
+            applyDiv.style.borderTop = '1px solid var(--border-color)';
+            applyDiv.style.textAlign = 'center';
+            
+            const applyBtn = document.createElement('button');
+            applyBtn.textContent = 'Применить ✓';
+            applyBtn.style.background = 'var(--btn-bg)';
+            applyBtn.style.color = 'white';
+            applyBtn.style.border = 'none';
+            applyBtn.style.borderRadius = '20px';
+            applyBtn.style.padding = '6px 16px';
+            applyBtn.style.fontSize = '12px';
+            applyBtn.style.cursor = 'pointer';
+            applyBtn.style.width = 'auto';
+            applyBtn.onclick = (e) => {
+                e.stopPropagation();
+                document.getElementById('typeFilterDropdown').classList.remove('show');
+            };
+            applyDiv.appendChild(applyBtn);
+            
             dropdown.appendChild(resetDiv);
+            dropdown.appendChild(applyDiv);
         }
         
         // Кастомный селект для сортировки
